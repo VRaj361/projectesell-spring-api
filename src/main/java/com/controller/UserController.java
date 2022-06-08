@@ -6,8 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+
 
 import com.bean.UserBean;
 import com.dao.UserDao;
@@ -29,4 +31,11 @@ public class UserController {
 	public List<UserBean> getAllUser(){
 		return userDao.getAllUser();
 	}
+	
+	@PutMapping("/user")
+	public UserBean updateUser(@RequestBody UserBean user) {
+		userDao.updateUser(user);
+		return user;
+	}
+	
 }

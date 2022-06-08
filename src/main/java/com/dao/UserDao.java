@@ -16,10 +16,14 @@ public class UserDao {
 	JdbcTemplate st;
 	
 	public void addUser(UserBean user) {
-		st.update("insert into users (firstname,lastname,createdate,gender,email,password,phonenum) values (?,?,?,?,?,?,?)",user.getFirstname(),user.getLastname(),user.getCreatedate(),user.getGender(),user.getEmail(),user.getPassword(),user.getPhonenum());		
+		st.update("insert into users (firstname,lastname,createdate,gender,email,password,phonenum,roleid) values (?,?,?,?,?,?,?,2)",user.getFirstname(),user.getLastname(),user.getCreatedate(),user.getGender(),user.getEmail(),user.getPassword(),user.getPhonenum());		
 	}//post request
 	
 	public List<UserBean> getAllUser(){
 		return st.query("select * from users",new BeanPropertyRowMapper<UserBean>(UserBean.class));
 	}//get request
+	
+	public void updateUser(UserBean user) {
+		st.update("update users set firstname=?,lastname=?,email=?,password=?,phonenum=? where userid=?",user.getFirstname(),user.getLastname(),user.getEmail(),user.getPassword(),user.getPhonenum(),user.getUserid());
+	}//update request
 }
