@@ -33,7 +33,7 @@ public class UserController {
 	}
 	
 	@PutMapping("/user")
-	public UserBean updateUser(  UserBean user) {
+	public UserBean updateUser(@RequestBody UserBean user) {
 		userDao.updateUser(user);
 		return user;
 	}
