@@ -12,9 +12,6 @@ import org.springframework.web.bind.annotation.RestController;
 import com.bean.ProductBean;
 import com.dao.ProductDao;
 
-
-
-
 @RestController
 @CrossOrigin
 public class ProductController {
@@ -29,7 +26,6 @@ public class ProductController {
 	
 	@PostMapping("/product")
 	public ProductBean addProduct(@RequestBody ProductBean product) {
-		System.out.println(product.getProductname());
 		productDao.addProduct(product);
 		return product;
 	}

@@ -19,7 +19,7 @@ public class ProductDao {
 	}//get request
 	
 	public void addProduct(ProductBean product){
-		st.update("insert into products (productname,price,description,location,title,userid) values (?,?,?,?,?,?)",product.getProductname(),product.getPrice(),product.getDescription(),product.getLocation(),product.getTitle(),product.getUserid());
+		st.update("insert into products (productname,price,description,location,title,userid,rating) values (?,?,?,?,?,?,?)",product.getProductname(),product.getPrice(),product.getDescription(),product.getLocation(),product.getTitle(),product.getUserid(),product.getRating());
 	}//get request
 	
 	
