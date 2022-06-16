@@ -1,5 +1,7 @@
 package com.bean;
 
+import org.springframework.web.multipart.MultipartFile;
+
 public class ProductBean {
 	int userid;
 	String productname;
@@ -8,8 +10,14 @@ public class ProductBean {
 	String price;
 	String location;
 	int rating;
+//	MultipartFile photo;
 
-	
+//	public MultipartFile getPhoto() {
+//		return photo;
+//	}
+//	public void setPhoto(MultipartFile photo) {
+//		this.photo = photo;
+//	}
 	public int getRating() {
 		return rating;
 	}

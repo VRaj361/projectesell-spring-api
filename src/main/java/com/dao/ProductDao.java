@@ -20,6 +20,7 @@ public class ProductDao {
 	
 	public void addProduct(ProductBean product){
 		st.update("insert into products (productname,price,description,location,title,userid,rating) values (?,?,?,?,?,?,?)",product.getProductname(),product.getPrice(),product.getDescription(),product.getLocation(),product.getTitle(),product.getUserid(),product.getRating());
+//		st.update("insert into products (productname,price,description,location,title,userid,rating,photo) values (?,?,?,?,?,?,?,?)",product.getProductname(),product.getPrice(),product.getDescription(),product.getLocation(),product.getTitle(),product.getUserid(),product.getRating(),product.getPhoto());
 	}//get request
 	
 	
