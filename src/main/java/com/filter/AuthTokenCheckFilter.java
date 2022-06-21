@@ -26,15 +26,16 @@ public class AuthTokenCheckFilter implements Filter {
 //		if(url.toString().contains("")) {
 //			chain.doFilter(request, response);
 //		}
-		if(authToken==null||userStrId==null) {
-			HttpServletResponse res=((HttpServletResponse)(response));
-			res.setContentType("application/json");
-			res.setStatus(401);
-			res.getWriter().write("{'msg':'Please Login and access service'}");
-			
-		}else {
-			chain.doFilter(request, response);
-		}
+//		if(authToken==null||userStrId==null) {
+//			HttpServletResponse res=((HttpServletResponse)(response));
+//			res.setContentType("application/json");
+//			res.setStatus(401);
+//			res.getWriter().write("{'msg':'Please Login and access service'}");
+//			
+//		}else {
+//			chain.doFilter(request, response);
+//		}
+		chain.doFilter(request, response);
 	}
 
 }

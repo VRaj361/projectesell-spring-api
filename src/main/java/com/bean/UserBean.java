@@ -10,6 +10,14 @@ public class UserBean {
 	String password;
 	String phonenum;
 	String address;
+	String cartdata;
+	public String getCartdata() {
+		return cartdata;
+	}
+
+	public void setCartdata(String cartdata) {
+		this.cartdata = cartdata;
+	}
 	public int getUserid() {
 		return userid;
 	}

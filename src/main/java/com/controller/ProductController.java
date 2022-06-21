@@ -9,8 +9,11 @@ import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
@@ -34,6 +37,15 @@ public class ProductController {
 	public List<ProductBean> getAllProducts(){
 		return productDao.getAllProducts();
 	}
+	
+	@RequestMapping(value="products/{id}/{id1}",method = RequestMethod.GET)
+	public ProductBean getParticularProduct(@PathVariable long id,@PathVariable long id1) {
+//		System.out.println("id "+ id);
+//		System.out.println("id1 "+ id1);
+		return productDao.getParticularProduct(id,id1);
+	}
+	
+	
 	
 	@PostMapping("/product")
 	public ProductBean addProduct(@RequestBody ProductBean product) {
