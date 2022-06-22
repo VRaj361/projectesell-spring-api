@@ -38,12 +38,18 @@ public class ProductController {
 		return productDao.getAllProducts();
 	}
 	
-	@RequestMapping(value="products/{id}/{id1}",method = RequestMethod.GET)
-	public ProductBean getParticularProduct(@PathVariable long id,@PathVariable long id1) {
+	@RequestMapping(value="products/{id}/{userid}",method = RequestMethod.GET)
+	public ProductBean getParticularProduct(@PathVariable long id,@PathVariable long userid) {
 //		System.out.println("id "+ id);
 //		System.out.println("id1 "+ id1);
-		return productDao.getParticularProduct(id,id1);
+		return productDao.getParticularProduct(id,userid);
 	}
+	
+	@RequestMapping(value="products/{userid}",method=RequestMethod.GET)
+	public List<ProductBean> getAllViewCartProducts(@PathVariable long userid){
+		return productDao.getAllViewCartProducts(userid);
+	}
+	
 	
 	
 	

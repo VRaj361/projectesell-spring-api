@@ -1,5 +1,6 @@
 package com.dao;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,18 +20,40 @@ public class ProductDao {
 		return st.query("select * from products",new BeanPropertyRowMapper<ProductBean>(ProductBean.class));
 	}//get request
 	
-	public ProductBean getParticularProduct(long id,long id1) {
-		List<UserBean> cartdata=st.query("select cartdata from users where userid=?",new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[] {id1});
+	public ProductBean getParticularProduct(long id,long userid) {
+		List<UserBean> cartdata=st.query("select cartdata from users where userid=?",new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[] {userid});
 		String cartData=cartdata.get(0).getCartdata();
 		if(cartData==null) {
-			st.update("update users set cartdata=? where userid=?",id,id1);
+			st.update("update users set cartdata=? where userid=?",id,userid);
 		}else {
 			cartData=cartData+","+id;
-			st.update("update users set cartdata=? where userid=?",cartData,id1);
+			st.update("update users set cartdata=? where userid=?",cartData,userid);
 		}
 		List<ProductBean> bean= st.query("select * from products where productid=? ", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {id});
 		return bean.get(0);
 	}//get particular product
+	
+	public List<ProductBean> getAllViewCartProducts(long userid){
+		List<UserBean> cartData=st.query("select cartdata from users where userid=?", new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[] {userid});
+		String data=cartData.get(0).getCartdata();
+		if(data!=null) {
+			List<ProductBean> allProductsBeans=new ArrayList<ProductBean>();
+			String arr[]=data.split(",");
+			for(String x:arr) {
+				int x1=Integer.parseInt(x);
+				List<ProductBean> bean= st.query("select * from products where productid=? ", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {x1});
+				allProductsBeans.add(bean.get(0));
+			}
+			return allProductsBeans;
+		}
+		return null;
+		
+	}
+	
+	
+	
+	
+	
 	
 	
 	public void addProduct(ProductBean product){
