@@ -1,12 +1,14 @@
 package com.dao;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
+import org.yaml.snakeyaml.util.ArrayUtils;
 
 import com.bean.ProductBean;
 import com.bean.UserBean;
@@ -51,6 +53,25 @@ public class ProductDao {
 	}
 	
 	
+	public void deleteParticularProduct(int productid,int userid) {
+		List<UserBean> cartdata=st.query("select cartdata from users where userid=?",new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[]{userid});
+		String cartData=cartdata.get(0).getCartdata();
+		String arr[]=cartData.split(",");
+		System.out.println(Arrays.toString(arr));
+		String str="";
+		if(Integer.parseInt(arr[0])!=productid) {
+			str=str+arr[0];
+		}
+		for(int i=1;i<arr.length;i++) {
+			
+			if(Integer.parseInt(arr[i])!=productid) {
+				str=str+","+arr[i];
+			}
+		}
+		System.out.println(str);
+		st.update("update users set cartdata=? where userid=?",str,userid);
+		
+	}
 	
 	
 	

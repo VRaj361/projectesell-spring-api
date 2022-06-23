@@ -51,7 +51,11 @@ public class ProductController {
 	}
 	
 	
-	
+	@RequestMapping(value="/productdelete/{productid}/{userid}",method=RequestMethod.GET)
+	public void deleteParticularProduct(@PathVariable int productid,@PathVariable int userid) {
+//		System.out.println(productid);
+		productDao.deleteParticularProduct(productid,userid);
+	}
 	
 	@PostMapping("/product")
 	public ProductBean addProduct(@RequestBody ProductBean product) {
