@@ -2,7 +2,9 @@ package com.dao;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -38,17 +40,28 @@ public class ProductDao {
 	public List<ProductBean> getAllViewCartProducts(long userid){
 		List<UserBean> cartData=st.query("select cartdata from users where userid=?", new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[] {userid});
 		String data=cartData.get(0).getCartdata();
-		if(data!=null) {
-			List<ProductBean> allProductsBeans=new ArrayList<ProductBean>();
-			String arr[]=data.split(",");
-			for(String x:arr) {
-				int x1=Integer.parseInt(x);
-				List<ProductBean> bean= st.query("select * from products where productid=? ", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {x1});
-				allProductsBeans.add(bean.get(0));
+		System.out.println("this is teh data "+ data+" tha");
+		if(data.equals("")) {
+			System.out.println("in");
+			return null;
+		}else {
+			if(data!=null) {
+				List<ProductBean> allProductsBeans=new ArrayList<ProductBean>();
+				if(data.charAt(0)==',') {
+					data=data.substring(1);
+				}
+				String[] arr=data.split(",");
+				Set<String> set = new HashSet<>(Arrays.asList(arr));
+
+				for(String x:set) {
+					int x1=Integer.parseInt(x);
+					List<ProductBean> bean= st.query("select * from products where productid=? ", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {x1});
+					allProductsBeans.add(bean.get(0));
+				}
+				return allProductsBeans;
 			}
-			return allProductsBeans;
+			return null;
 		}
-		return null;
 		
 	}
 	
@@ -56,16 +69,33 @@ public class ProductDao {
 	public void deleteParticularProduct(int productid,int userid) {
 		List<UserBean> cartdata=st.query("select cartdata from users where userid=?",new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[]{userid});
 		String cartData=cartdata.get(0).getCartdata();
-		String arr[]=cartData.split(",");
-		System.out.println(Arrays.toString(arr));
 		String str="";
-		if(Integer.parseInt(arr[0])!=productid) {
-			str=str+arr[0];
-		}
-		for(int i=1;i<arr.length;i++) {
+		if(cartData.equals("")) {
+			str=str+productid;
+		}else {
 			
-			if(Integer.parseInt(arr[i])!=productid) {
-				str=str+","+arr[i];
+			if(cartData.charAt(0)==',') {
+				cartData=cartData.substring(1);
+			}
+			
+			
+			
+			String arr[]=cartData.split(",");
+			System.out.println(Arrays.toString(arr));
+			if(Integer.parseInt(arr[0])!=productid) {
+				str=str+arr[0];
+				System.out.println("this");
+			}
+			for(int i=1;i<arr.length;i++) {
+				
+				if(Integer.parseInt(arr[i])!=productid) {
+					str=str+","+arr[i];
+					System.out.println("this taht");
+				}else if(Integer.parseInt(arr[i])!=productid){
+					str=str+arr[i];
+					System.out.println("that");
+				}
+					
 			}
 		}
 		System.out.println(str);
