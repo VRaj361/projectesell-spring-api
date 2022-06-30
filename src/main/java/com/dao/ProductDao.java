@@ -37,12 +37,19 @@ public class ProductDao {
 		return bean.get(0);
 	}//get particular product
 	
+	public ProductBean getParticularProduc(long id) {
+		List<ProductBean> bean= st.query("select * from products where productid=? ", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {id});
+		return bean.get(0);
+	}
+	
+	
+	
 	public List<ProductBean> getAllViewCartProducts(long userid){
 		List<UserBean> cartData=st.query("select cartdata from users where userid=?", new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[] {userid});
 		String data=cartData.get(0).getCartdata();
-		System.out.println("this is teh data "+ data+" tha");
+//		System.out.println("this is teh data "+ data+" tha");
 		if(data.equals("")) {
-			System.out.println("in");
+//			System.out.println("in");
 			return null;
 		}else {
 			if(data!=null) {

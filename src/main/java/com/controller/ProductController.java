@@ -50,6 +50,11 @@ public class ProductController {
 		return productDao.getAllViewCartProducts(userid);
 	}
 	
+	@RequestMapping(value="product/{id}",method = RequestMethod.GET)
+	public ProductBean getParticularProduc(@PathVariable long id) {
+		return productDao.getParticularProduc(id);
+	}
+	
 	
 	@RequestMapping(value="/productdelete/{productid}/{userid}",method=RequestMethod.GET)
 	public void deleteParticularProduct(@PathVariable int productid,@PathVariable int userid) {
