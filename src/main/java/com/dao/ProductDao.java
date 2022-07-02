@@ -111,6 +111,12 @@ public class ProductDao {
 	}
 	
 	
+	//delete all product
+	public boolean deleteAllProduct(int userid) {
+		st.update("update users set cartdata='' where userid=?",userid);
+		return true;
+	}
+	
 	
 	
 	

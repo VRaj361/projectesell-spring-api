@@ -60,7 +60,18 @@ public class ProductController {
 	public void deleteParticularProduct(@PathVariable int productid,@PathVariable int userid) {
 //		System.out.println(productid);
 		productDao.deleteParticularProduct(productid,userid);
+	}//delete particular product
+	
+	@RequestMapping(value="/productdeleteall/{userid}",method=RequestMethod.GET)
+	public boolean deleteAllProduct(@PathVariable int userid) {
+		return productDao.deleteAllProduct(userid);
+		
 	}
+	
+	
+	
+	
+	
 	
 	@PostMapping("/product")
 	public ProductBean addProduct(@RequestBody ProductBean product) {
