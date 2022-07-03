@@ -105,7 +105,7 @@ public class UserController {
 	public ResponseEntity<?> getAllUsreAuth(){
 //		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
 		List<UserBeanAuth> users=userDao.getAllUserAuth("yc4McUkus3");
-		System.out.println(users);
+//		System.out.println(users);
 		if(users.size()==0) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}else {

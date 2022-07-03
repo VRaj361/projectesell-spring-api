@@ -4,6 +4,8 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.util.List;
 
+import javax.security.auth.message.callback.PrivateKeyCallback.Request;
+
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.bean.OrderBean;
 import com.bean.ProductBean;
 import com.dao.ProductDao;
 
@@ -68,7 +71,15 @@ public class ProductController {
 		
 	}
 	
+	@PostMapping("/order")
+	public void addOrder(@RequestBody OrderBean order) {
+		productDao.addOrder(order);
+	}
 	
+	@RequestMapping(value="/orders/{userid}",method=RequestMethod.GET)
+	public OrderBean getOrders(@PathVariable int userid) {
+		return productDao.getOrders(userid);
+	}
 	
 	
 	

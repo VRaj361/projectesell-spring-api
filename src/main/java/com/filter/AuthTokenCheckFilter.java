@@ -18,11 +18,11 @@ public class AuthTokenCheckFilter implements Filter {
 			throws IOException, ServletException {
 		HttpServletRequest req=((HttpServletRequest)(request));
 		StringBuffer url=req.getRequestURL();
-		System.out.println("url = "+url);
+//		System.out.println("url = "+url);
 		
 		String authToken=req.getHeader("authToken");
 		String userStrId=req.getHeader("userid");
-		System.out.println("token is => "+authToken);
+//		System.out.println("token is => "+authToken);
 //		if(url.toString().contains("")) {
 //			chain.doFilter(request, response);
 //		}

@@ -24,10 +24,10 @@ public class ProjectEsellApiApplication {
 		SpringApplication.run(ProjectEsellApiApplication.class, args);
 	}
 
-	public void run(String... strings) throws Exception {
-
-		fileStorageServices.init();
-	}
+//	public void run(String... strings) throws Exception {
+//
+//		fileStorageServices.init();
+//	}
 
 	@Bean
 	public Docket generateDoc() {
