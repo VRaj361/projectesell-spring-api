@@ -51,9 +51,9 @@ public class ProductDao {
 		List<UserBean> cartData = st.query("select cartdata from users where userid=?",
 				new BeanPropertyRowMapper<UserBean>(UserBean.class), new Object[] { userid });
 		String data = cartData.get(0).getCartdata();
-//		System.out.println("this is teh data "+ data+" tha");
+
 		if (data.equals("")) {
-//			System.out.println("in");
+
 			return null;
 		} else {
 			if (data != null) {
@@ -91,24 +91,24 @@ public class ProductDao {
 			}
 
 			String arr[] = cartData.split(",");
-			System.out.println(Arrays.toString(arr));
+
 			if (Integer.parseInt(arr[0]) != productid) {
 				str = str + arr[0];
-				System.out.println("this");
+
 			}
 			for (int i = 1; i < arr.length; i++) {
 
 				if (Integer.parseInt(arr[i]) != productid) {
 					str = str + "," + arr[i];
-					System.out.println("this taht");
+
 				} else if (Integer.parseInt(arr[i]) != productid) {
 					str = str + arr[i];
-					System.out.println("that");
+
 				}
 
 			}
 		}
-		System.out.println(str);
+
 		st.update("update users set cartdata=? where userid=?", str, userid);
 
 	}
@@ -121,7 +121,7 @@ public class ProductDao {
 
 	// copy products detail to shift into order bean detail
 
-	public void addOrder(OrderBean order) {
+	public boolean addOrder(OrderBean order) {
 		List<UserBean> cartData = st.query("select cartdata from users where userid=?",
 				new BeanPropertyRowMapper<UserBean>(UserBean.class), new Object[] { order.getUserid() });
 		String data = cartData.get(0).getCartdata();
@@ -153,13 +153,19 @@ public class ProductDao {
 						new BeanPropertyRowMapper<ProductBean>(ProductBean.class), new Object[] { val });
 				billAmount+=Integer.parseInt(prod.get(0).getPrice());
 			}
-			if(billAmount>500) {
-				st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax) values (?,?,?,?,?,?,?,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,0);
+			List<OrderBean> orders= st.query("select * from orders where userid=?",new BeanPropertyRowMapper<OrderBean>(OrderBean.class),new Object[] {order.getUserid()});
+			if(orders.size()==0) {
+				if(billAmount>500) {
+					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax) values (?,?,?,?,?,?,?,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,0);
+				}else {
+					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax) values (?,?,?,?,?,?,?,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,50);
+				}
+				return true;
 			}else {
-				st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax) values (?,?,?,?,?,?,?,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,50);
+				return false;
 			}
-			
 		}
+		return false;
 
 	}
 	
@@ -168,7 +174,7 @@ public class ProductDao {
 	public OrderBean getOrders(int userid) {
 		List<OrderBean> orders=st.query("select * from orders where userid=?", 
 				new BeanPropertyRowMapper<OrderBean>(OrderBean.class), new Object[] { userid });
-		System.out.println("orders=> "+orders.get(0).getBilladdress());
+//		System.out.println("orders=> "+orders.get(0).getBilladdress());
 		return orders.get(0);
 	}
 

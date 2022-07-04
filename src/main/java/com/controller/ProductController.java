@@ -72,17 +72,15 @@ public class ProductController {
 	}
 	
 	@PostMapping("/order")
-	public void addOrder(@RequestBody OrderBean order) {
-		productDao.addOrder(order);
+	public boolean addOrder(@RequestBody OrderBean order) {
+		return productDao.addOrder(order);
 	}
 	
 	@RequestMapping(value="/orders/{userid}",method=RequestMethod.GET)
 	public OrderBean getOrders(@PathVariable int userid) {
 		return productDao.getOrders(userid);
 	}
-	
-	
-	
+
 	
 	@PostMapping("/product")
 	public ProductBean addProduct(@RequestBody ProductBean product) {
