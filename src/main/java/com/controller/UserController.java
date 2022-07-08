@@ -1,7 +1,10 @@
 package com.controller;
 
 import java.util.List;
+import java.util.Random;
 
+import javax.servlet.http.Cookie;
+import javax.servlet.http.HttpServletResponse;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +21,7 @@ import com.bean.ResponceUserBeanAuth;
 import com.bean.UserBean;
 import com.bean.UserBeanAuth;
 import com.dao.UserDao;
+import com.services.EmailService;
 import com.services.GenerateToken;
 
 @RestController
@@ -25,6 +29,9 @@ import com.services.GenerateToken;
 public class UserController {
 	@Autowired
 	UserDao userDao;
+	
+	@Autowired
+	EmailService email_service;
 	
 	
 	@PostMapping("/user")
@@ -81,6 +88,34 @@ public class UserController {
 			res.setMsg("Email is already Exists");
 		}
 		return res;
+	}
+	
+	@PostMapping("/sendemail")
+	public boolean checkSendEmail(@RequestBody UserBean user,HttpServletResponse response) {
+		System.out.println("email -> recived "+user.getEmail());
+		Cookie c1=new Cookie("changepassemail",user.getEmail());
+		response.addCookie(c1);
+		
+		// logic of otp
+		Random rnd = new Random();
+		int number = rnd.nextInt(999999);
+		
+		// this will convert any number sequence into 6 character.
+		String otp = String.format("%06d", number);
+		System.out.println(otp);
+	
+		try {
+			EmailService email_service = new EmailService();
+			email_service.sendOtp(user.getEmail(), otp);
+		}catch(Exception e) {
+			e.printStackTrace();
+			return false;
+		}
+		
+		Cookie c=new Cookie("otpset",otp);
+		c.setMaxAge(60);
+		response.addCookie(c);
+		return true;
 	}
 	
 	
