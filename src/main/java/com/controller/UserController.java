@@ -1,8 +1,11 @@
 package com.controller;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Random;
 
+import javax.mail.MessagingException;
+import javax.mail.internet.AddressException;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 
@@ -91,19 +94,24 @@ public class UserController {
 	}
 	
 	
-	@GetMapping
-	public int particularUser(String email) {
-		return userDao.particularUser(email);
-	}
+
+	
+	@PostMapping("/sendemailu")
+	 public boolean sendEmailOfPassword(@RequestBody UserBean user) throws AddressException, MessagingException, IOException {
+	  //call the email method in main service method
+	  UserBean user1=userDao.particularUSer(user.getUserid());
+	  return email_service.sendPassword(user1.getEmail(),user1.getPassword());
+
+	 }
+	
+	
+	
+	
 	
 	
 	@PostMapping("/sendemail")
-	public String checkSendEmail(@RequestBody UserBean user,HttpServletResponse response) {
+	public String checkSendEmail(@RequestBody UserBean user) {
 		System.out.println("email -> recived "+user.getEmail());
-//		Cookie c1=new Cookie("changepassemail",user.getEmail());
-//		response.addCookie(c1);
-		
-		// logic of otp
 		Random rnd = new Random();
 		int number = rnd.nextInt(999999);
 		
@@ -112,17 +120,14 @@ public class UserController {
 		System.out.println(otp);
 	
 		try {
-			EmailService email_service = new EmailService();
+			
 			email_service.sendOtp(user.getEmail(), otp);
 		}catch(Exception e) {
 			e.printStackTrace();
 			return "-1";
 		}
 		System.out.println("Email send Successfully--------->");
-		int userid=particularUser(user.getEmail());
-//		Cookie c=new Cookie("otpset",otp);
-//		c.setMaxAge(60);
-//		response.addCookie(c);
+		int userid=userDao.particularUser(user.getEmail());
 		return otp+" "+userid;
 	}
 	

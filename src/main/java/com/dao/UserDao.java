@@ -36,6 +36,12 @@ public class UserDao {
 	}
 	
 	
+	 public UserBean particularUSer(int userid) {
+	  List<UserBean> users=st.query("select * from users where userid = ?", new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[] {userid});
+	  return users.get(0);
+	 }//method done for getting password
+	
+	
 	
 	//for users table without token
 	
