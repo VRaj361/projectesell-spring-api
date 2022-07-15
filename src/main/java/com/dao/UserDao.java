@@ -30,6 +30,13 @@ public class UserDao {
 	}//update request
 
 	
+	public int particularUser(String email) {
+		List<UserBean> users=st.query("select userid from users where email = ?", new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[] {email});
+		return users.get(0).getUserid();
+	}
+	
+	
+	
 	//for users table without token
 	
 //	public UserBean findUser(String email) {

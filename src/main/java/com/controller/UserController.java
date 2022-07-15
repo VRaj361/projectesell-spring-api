@@ -90,11 +90,18 @@ public class UserController {
 		return res;
 	}
 	
+	
+	@GetMapping
+	public int particularUser(String email) {
+		return userDao.particularUser(email);
+	}
+	
+	
 	@PostMapping("/sendemail")
-	public boolean checkSendEmail(@RequestBody UserBean user,HttpServletResponse response) {
+	public String checkSendEmail(@RequestBody UserBean user,HttpServletResponse response) {
 		System.out.println("email -> recived "+user.getEmail());
-		Cookie c1=new Cookie("changepassemail",user.getEmail());
-		response.addCookie(c1);
+//		Cookie c1=new Cookie("changepassemail",user.getEmail());
+//		response.addCookie(c1);
 		
 		// logic of otp
 		Random rnd = new Random();
@@ -109,13 +116,14 @@ public class UserController {
 			email_service.sendOtp(user.getEmail(), otp);
 		}catch(Exception e) {
 			e.printStackTrace();
-			return false;
+			return "-1";
 		}
-		
-		Cookie c=new Cookie("otpset",otp);
-		c.setMaxAge(60);
-		response.addCookie(c);
-		return true;
+		System.out.println("Email send Successfully--------->");
+		int userid=particularUser(user.getEmail());
+//		Cookie c=new Cookie("otpset",otp);
+//		c.setMaxAge(60);
+//		response.addCookie(c);
+		return otp+" "+userid;
 	}
 	
 	
