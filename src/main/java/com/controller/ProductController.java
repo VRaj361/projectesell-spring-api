@@ -80,6 +80,16 @@ public class ProductController {
 	public OrderBean getOrders(@PathVariable int userid) {
 		return productDao.getOrders(userid);
 	}
+	
+	@PostMapping("/products")
+	public List<ProductBean> getParticularProducts(@RequestBody ProductBean bean){
+		System.out.println("in "+bean.getProductname());
+		return productDao.getParticularProducts(bean.getProductname());
+	}
+	
+	
+	
+	
 
 	
 	@PostMapping("/product")

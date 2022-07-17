@@ -77,6 +77,15 @@ public class ProductDao {
 
 	}
 
+	public List<ProductBean> getParticularProducts(String name){
+		System.out.println(name);
+		List<ProductBean> products=  st.query("select * from products where productname like CONCAT( '%',?,'%') or title like CONCAT( '%',?,'%') or description like CONCAT( '%',?,'%')", new BeanPropertyRowMapper<ProductBean>(ProductBean.class), new Object[] { name,name,name });
+		System.out.println(products);
+		return products;
+	}
+	
+	
+	
 	public void deleteParticularProduct(int productid, int userid) {
 		List<UserBean> cartdata = st.query("select cartdata from users where userid=?",
 				new BeanPropertyRowMapper<UserBean>(UserBean.class), new Object[] { userid });
