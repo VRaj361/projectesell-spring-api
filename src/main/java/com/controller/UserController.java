@@ -54,48 +54,7 @@ public class UserController {
 		return user;
 	}
 	
-//	@PostMapping("/signupcus")
-//	public ResponceUserBean<?> addUserCus(@RequestBody UserBean bean){
-//		UserBean duplicate=userDao.findUser(bean.getEmail());
-//		ResponceUserBean<UserBean> res=new ResponceUserBean<>();
-//		if(duplicate==null) {
-//			res.setData(bean);
-//			res.setMsg("Signup Successfully");
-//			res.setStatus(200);
-//		}else {
-//			res.setData(null);
-//			res.setStatus(-1);
-//			res.setMsg("Email is already Exists");
-//		}
-//		return res;
-//	}
-	
-	//for authtoken use table usersauth
-	@PostMapping("/signupcus")
-	public ResponceUserBeanAuth<?> addUserCus(@RequestBody UserBeanAuth bean){
-		UserBeanAuth duplicate=userDao.findUser(bean);
-		
-		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
-		if(duplicate==null) {
-			GenerateToken gen=new GenerateToken();
-			String str=gen.generateToken(10);
-			//update query
-			userDao.setToken(bean.getEmail(),str);
-			bean.setAuthToken(str);
-			res.setData(bean);
-			res.setMsg("Signup Successfully");
-			res.setStatus(200);
-		}else {
-			res.setData(null);
-			res.setStatus(-1);
-			res.setMsg("Email is already Exists");
-		}
-		return res;
-	}
-	
-	
 
-	
 	@PostMapping("/sendemailu")
 	 public boolean sendEmailOfPassword(@RequestBody UserBean user) throws AddressException, MessagingException, IOException {
 	  //call the email method in main service method
@@ -104,11 +63,7 @@ public class UserController {
 
 	 }
 	
-	
-	
-	
-	
-	
+
 	@PostMapping("/sendemail")
 	public String checkSendEmail(@RequestBody UserBean user) {
 		System.out.println("email -> recived "+user.getEmail());
@@ -138,7 +93,7 @@ public class UserController {
 	
 //	@PostMapping("/signupcusres")
 //	public ResponseEntity<?> addUserCusRes(@RequestBody UserBean bean){
-//		UserBean duplicate=userDao.findUser(bean.getEmail());
+//		UserBean duplicate=userDao.findUserAuth(bean.getEmail());
 ////		ResponceUserBean<UserBean> res=new ResponceUserBean<>();
 //		if(duplicate==null) {
 //			return ResponseEntity.ok(bean);
@@ -147,13 +102,74 @@ public class UserController {
 //		}
 //	}
 	
+//	@PostMapping("/signupcus")
+//	public ResponceUserBean<?> addUserCus(@RequestBody UserBean bean){
+//		UserBean duplicate=userDao.findUser(bean.getEmail());
+//		ResponceUserBean<UserBean> res=new ResponceUserBean<>();
+//		if(duplicate==null) {
+//			res.setData(bean);
+//			res.setMsg("Signup Successfully");
+//			res.setStatus(200);
+//		}else {
+//			res.setData(null);
+//			res.setStatus(-1);
+//			res.setMsg("Email is already Exists");
+//		}
+//		return res;
+//	}
+	
+	//for authtoken use table usersauth
+	
+	
+	@PostMapping("/signupcus")
+	public ResponceUserBeanAuth<?> addUserCus(@RequestBody UserBeanAuth bean){
+		UserBeanAuth duplicate=userDao.findUser(bean);
+		
+		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
+		if(duplicate==null) {
+			GenerateToken gen=new GenerateToken();
+			String str=gen.generateToken(10);
+			userDao.setToken(bean.getEmail(),str);
+			bean.setAuthtoken(str);
+			res.setData(bean);
+			res.setMsg("Signup Successfully");
+			res.setStatus(200);
+		}else {
+			res.setData(null);
+			res.setStatus(400);
+			res.setMsg("Email is already Exists");
+		}
+		return res;
+	}
+	
+	//update record (first check key and after get the record)
+	@PutMapping("/updatecus")
+	public ResponceUserBeanAuth<?> updateUserCus(@RequestBody UserBeanAuth bean){
+		System.out.println("data are there --->"+bean.getAuthtoken()+" "+bean.getPassword());
+		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
+		UserBeanAuth user = userDao.findKey(bean);
+		if(user != null) {
+			UserBeanAuth userResp = userDao.updateUserCus(bean);
+			GenerateToken gen=new GenerateToken();
+			String str=gen.generateToken(10);
+			userDao.setToken(userResp.getEmail(),str);
+			userResp.setAuthtoken(str);
+			res.setData(userResp);
+			res.setStatus(200);
+			res.setMsg("Update Successfully");
+		}else {
+			res.setData(null);
+			res.setStatus(404);
+			res.setMsg("No User found");
+		}
+		return res;
+	}
 	
 	
 	@GetMapping("/userauth")
 	public ResponseEntity<?> getAllUsreAuth(){
 //		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
 		List<UserBeanAuth> users=userDao.getAllUserAuth("yc4McUkus3");
-//		System.out.println(users);
 		if(users.size()==0) {
 			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
 		}else {

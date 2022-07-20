@@ -11,10 +11,11 @@ public class UserBeanAuth {
 	String phonenum;
 	String address;
 	String authtoken;
-	public String getAuthToken() {
+	
+	public String getAuthtoken() {
 		return authtoken;
 	}
-	public void setAuthToken(String authtoken) {
+	public void setAuthtoken(String authtoken) {
 		this.authtoken = authtoken;
 	}
 	public int getUserid() {

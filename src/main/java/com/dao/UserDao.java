@@ -45,7 +45,7 @@ public class UserDao {
 	
 	//for users table without token
 	
-//	public UserBean findUser(String email) {
+//	public UserBean findUserAuth(String email) {
 //		List<UserBean> users=st.query("select * from users where email = ?", new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[] {email});
 //		if(users.size()==0) {
 //			return null;//user does not exists
@@ -54,6 +54,8 @@ public class UserDao {
 //		}
 //	}
 	
+	
+	//user find   (return null or user) -> check for duplication
 	public UserBeanAuth findUser(UserBeanAuth user) {
 		List<UserBeanAuth> users=st.query("select * from usersa where email = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getEmail()});
 		if(users.size()==0) {
@@ -64,12 +66,35 @@ public class UserDao {
 		}
 	}
 	
+	//check authtoken first for update data and login
+	public UserBeanAuth findKey(UserBeanAuth user) {
+		System.out.println("user---->"+user.getAuthtoken());
+		List<UserBeanAuth> users = st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken()});
+		System.out.println("users---->"+users);
+		if(users.size()==1) {
+			return users.get(0);
+		}else {
+			return null;
+		}
+	}
+	
+	//updatedata according condition
+	public UserBeanAuth updateUserCus(UserBeanAuth user) {
+		if(user.getPassword()!=null) {
+			st.update("update usersa set password=? where authtoken=?",user.getPassword(),user.getAuthtoken());
+		}else if(user.getAddress()!=null && user.getFirstname()!=null && user.getLastname()!=null && user.getPhonenum()!=null) {
+			st.update("update usersa set firstname=?,lastname=?,phonenum=?,address=? where authtoken=?",user.getFirstname(),user.getLastname(),user.getPhonenum(),user.getAddress(),user.getAuthtoken());
+		}
+		return st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken()}).get(0);
+	}
+	
+	//get user using token(login)
 	public List<UserBeanAuth> getAllUserAuth(String token){
 		return st.query("select * from usersa where authtoken=?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {token});
 	}
 
+	//set token in database(signup)
 	public void setToken(String email,String str) {
-		// TODO Auto-generated method stub
 		st.update("update usersa set authtoken = ? where email=?",str,email);
 	}
 }
