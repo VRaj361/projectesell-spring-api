@@ -37,4 +37,4 @@ build/
 mvnw
 mvnw.cmd
 
-!**/src/main/java/com/services/EmailStorageServices.java
+src/main/java/com/services/EmailStorageServices.java
