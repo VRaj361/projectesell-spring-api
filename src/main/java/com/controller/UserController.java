@@ -119,8 +119,6 @@ public class UserController {
 //	}
 	
 	//for authtoken use table usersauth
-	
-	
 	@PostMapping("/signupcus")
 	public ResponceUserBeanAuth<?> addUserCus(@RequestBody UserBeanAuth bean){
 		UserBeanAuth duplicate=userDao.findUser(bean);
@@ -145,7 +143,6 @@ public class UserController {
 	//update record (first check key and after get the record)
 	@PutMapping("/updatecus")
 	public ResponceUserBeanAuth<?> updateUserCus(@RequestBody UserBeanAuth bean){
-		System.out.println("data are there --->"+bean.getAuthtoken()+" "+bean.getPassword());
 		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
 		UserBeanAuth user = userDao.findKey(bean);
 		if(user != null) {
@@ -160,11 +157,38 @@ public class UserController {
 		}else {
 			res.setData(null);
 			res.setStatus(404);
-			res.setMsg("No User found");
+			res.setMsg("User does not exists");
 		}
 		return res;
 	}
 	
+	//login user to get return his record
+	//first check authtoken and after check data 
+	//authtoken is wrong then user does not exists
+	@PostMapping("/logincus")
+	public ResponceUserBeanAuth<?> loginUserCus(@RequestBody UserBeanAuth bean){
+		ResponceUserBeanAuth<UserBeanAuth> res = new ResponceUserBeanAuth<>();
+		UserBeanAuth user = userDao.findUserLogin(bean);
+		if(user != null) {
+			GenerateToken gen=new GenerateToken();
+			String str=gen.generateToken(10);
+			userDao.setToken(user.getEmail(),str);
+			user.setAuthtoken(str);
+			res.setData(user);
+			res.setStatus(200);
+			res.setMsg("Login Successfully");
+		}else {
+			res.setData(null);
+			res.setStatus(404);
+			res.setMsg("User does not exists");
+		}
+		return res;
+	}
+	
+	@GetMapping("/getAnyToken")
+	public String getAnyToken() {
+		return userDao.getAnyToken();
+	}
 	
 	@GetMapping("/userauth")
 	public ResponseEntity<?> getAllUsreAuth(){
@@ -177,9 +201,4 @@ public class UserController {
 		}
 	}
 
-	
-	
-	
-	
-	
 }

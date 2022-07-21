@@ -66,11 +66,26 @@ public class UserDao {
 		}
 	}
 	
-	//check authtoken first for update data and login
+	//user find for login
+	public UserBeanAuth findUserLogin(UserBeanAuth user) {
+		List<UserBeanAuth> users=st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken()});
+		if(users.size()==0) {
+			return null;//user does not exists
+		}else {
+			List<UserBeanAuth> loginUser=st.query("select * from usersa where email = ? and password = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getEmail(),user.getPassword()});
+			return loginUser.get(0);//user can exists
+		}
+	}
+	
+	//get token from the database
+	public String getAnyToken() {
+		List<UserBeanAuth> user= st.query("select authtoken from usersa order by random() limit 1", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {});
+		return user.get(0).getAuthtoken();
+	}
+	
+	//check authtoken first for update data 
 	public UserBeanAuth findKey(UserBeanAuth user) {
-		System.out.println("user---->"+user.getAuthtoken());
 		List<UserBeanAuth> users = st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken()});
-		System.out.println("users---->"+users);
 		if(users.size()==1) {
 			return users.get(0);
 		}else {
