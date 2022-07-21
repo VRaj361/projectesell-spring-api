@@ -41,19 +41,12 @@ public class UserDao {
 	  return users.get(0);
 	 }//method done for getting password
 	
-	
-	
-	//for users table without token
-	
-//	public UserBean findUserAuth(String email) {
-//		List<UserBean> users=st.query("select * from users where email = ?", new BeanPropertyRowMapper<UserBean>(UserBean.class),new Object[] {email});
-//		if(users.size()==0) {
-//			return null;//user does not exists
-//		}else {
-//			return users.get(0);//one user can exists
-//		}
-//	}
-	
+	/*
+	 * 
+	 * Authenticate API's
+	 * 
+	 * 
+	 */
 	
 	//user find   (return null or user) -> check for duplication
 	public UserBeanAuth findUser(UserBeanAuth user) {
@@ -105,11 +98,18 @@ public class UserDao {
 	
 	//get user using token(login)
 	public List<UserBeanAuth> getAllUserAuth(String token){
-		return st.query("select * from usersa where authtoken=?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {token});
+		List<UserBeanAuth> user=st.query("select * from usersa where authtoken=?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {token});
+		System.out.println(user+"   "+token);
+		if(user.size() == 0) {
+			return null;
+		}else {
+			return st.query("select * from usersa", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {});
+		}
 	}
 
 	//set token in database(signup)
 	public void setToken(String email,String str) {
 		st.update("update usersa set authtoken = ? where email=?",str,email);
 	}
+	
 }

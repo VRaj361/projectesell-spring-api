@@ -22,11 +22,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bean.OrderBean;
 import com.bean.ProductBean;
+import com.bean.ResponceUserBean;
+import com.bean.ResponceUserBeanAuth;
+import com.bean.UserBeanAuth;
 import com.dao.ProductDao;
-
-
-
-
 
 
 @RestController
@@ -36,40 +35,109 @@ public class ProductController {
 	@Autowired
 	ProductDao productDao;
 	
+	//list of all products
 	@GetMapping("/products")
 	public List<ProductBean> getAllProducts(){
 		return productDao.getAllProducts();
 	}
-	
-	@RequestMapping(value="products/{id}/{userid}",method = RequestMethod.GET)
-	public ProductBean getParticularProduct(@PathVariable long id,@PathVariable long userid) {
-//		System.out.println("id "+ id);
-//		System.out.println("id1 "+ id1);
-		return productDao.getParticularProduct(id,userid);
+	 
+	//particular Product
+	@RequestMapping(value="product/{id}",method = RequestMethod.GET)
+	public ProductBean getParticularProduct(@PathVariable long id) {
+		return productDao.getParticularProduct(id);
 	}
 	
+	//search products with using search box value
+	@PostMapping("/products")
+	public List<ProductBean> getParticularProducts(@RequestBody ProductBean bean){
+		return productDao.getSearchProducts(bean.getProductname());
+	}
+	
+	
+	
+	
+	@RequestMapping(value="products/{id}/{userid}",method = RequestMethod.GET)
+	public ProductBean getParticularProduct1(@PathVariable long id,@PathVariable long userid) {
+		return productDao.getParticularProduct1(id,userid);
+	}
+	
+	
+	//before viewcart data
 	@RequestMapping(value="products/{userid}",method=RequestMethod.GET)
 	public List<ProductBean> getAllViewCartProducts(@PathVariable long userid){
 		return productDao.getAllViewCartProducts(userid);
 	}
 	
-	@RequestMapping(value="product/{id}",method = RequestMethod.GET)
-	public ProductBean getParticularProduc(@PathVariable long id) {
-		return productDao.getParticularProduc(id);
+	//after viewcart data
+	@PostMapping("/productviewcart")
+	public ResponceUserBeanAuth<List<ProductBean>> getAllViewCartProductsAuth(@RequestBody UserBeanAuth bean){
+		ResponceUserBeanAuth<List<ProductBean>> res = new ResponceUserBeanAuth<>();
+		List<ProductBean> products = productDao.getAllViewCartProductsAuth(bean);
+		if(products != null) {
+			res.setData(products);
+			res.setStatus(200);
+			res.setMsg("View Cart Products");
+		}else {
+			res.setData(null);
+			res.setStatus(401);
+			res.setMsg("Unauthorized");
+		}
+		return res;
 	}
 	
-	
+	//before delete particular product
 	@RequestMapping(value="/productdelete/{productid}/{userid}",method=RequestMethod.GET)
 	public void deleteParticularProduct(@PathVariable int productid,@PathVariable int userid) {
 //		System.out.println(productid);
 		productDao.deleteParticularProduct(productid,userid);
 	}//delete particular product
 	
+	//after delete particular product
+	@PostMapping("/productdelete")
+	public ResponceUserBeanAuth<?> deleteParticularProduct(@RequestBody UserBeanAuth bean){
+		ResponceUserBeanAuth<Boolean> res = new ResponceUserBeanAuth<>();  
+		boolean check = productDao.deleteParticularProductsAuth(bean);
+		if(check) {
+			res.setData(true);
+			res.setMsg("All Products Delete Successfully");
+			res.setStatus(200);
+		}else {
+			res.setData(false);
+			res.setMsg("Unauthorized");
+			res.setStatus(401);
+		}
+		return res;
+	}
+	
+	//before delete all product 
 	@RequestMapping(value="/productdeleteall/{userid}",method=RequestMethod.GET)
 	public boolean deleteAllProduct(@PathVariable int userid) {
 		return productDao.deleteAllProduct(userid);
+	}
+	
+	//after delete all products
+	@PostMapping(value="/deleteAllProducts")
+	public ResponceUserBeanAuth<?> deleteAllProductsAuth(@RequestBody UserBeanAuth bean) {
+		ResponceUserBeanAuth<Boolean> res = new ResponceUserBeanAuth<>();  
+		boolean check = productDao.deleteAllProductsAuth(bean);
+		if(check) {
+			res.setData(true);
+			res.setMsg("All Products Delete Successfully");
+			res.setStatus(200);
+		}else {
+			res.setData(false);
+			res.setMsg("Unauthorized");
+			res.setStatus(401);
+		}
+		return res;
 		
 	}
+	
+
+	
+	
+	
+	
 	
 	@PostMapping("/order")
 	public boolean addOrder(@RequestBody OrderBean order) {
@@ -81,16 +149,6 @@ public class ProductController {
 		return productDao.getOrders(userid);
 	}
 	
-	@PostMapping("/products")
-	public List<ProductBean> getParticularProducts(@RequestBody ProductBean bean){
-		System.out.println("in "+bean.getProductname());
-		return productDao.getParticularProducts(bean.getProductname());
-	}
-	
-	
-	
-	
-
 	
 	@PostMapping("/product")
 	public ProductBean addProduct(@RequestBody ProductBean product) {

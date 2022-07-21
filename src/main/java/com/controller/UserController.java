@@ -87,14 +87,19 @@ public class UserController {
 	}
 	
 	
-	
+	/*
+	 * 
+	 * 
+	 * Authenticate API's
+	 * 
+	 * 
+	 */
 	
 	
 	
 //	@PostMapping("/signupcusres")
 //	public ResponseEntity<?> addUserCusRes(@RequestBody UserBean bean){
 //		UserBean duplicate=userDao.findUserAuth(bean.getEmail());
-////		ResponceUserBean<UserBean> res=new ResponceUserBean<>();
 //		if(duplicate==null) {
 //			return ResponseEntity.ok(bean);
 //		}else {
@@ -102,27 +107,11 @@ public class UserController {
 //		}
 //	}
 	
-//	@PostMapping("/signupcus")
-//	public ResponceUserBean<?> addUserCus(@RequestBody UserBean bean){
-//		UserBean duplicate=userDao.findUser(bean.getEmail());
-//		ResponceUserBean<UserBean> res=new ResponceUserBean<>();
-//		if(duplicate==null) {
-//			res.setData(bean);
-//			res.setMsg("Signup Successfully");
-//			res.setStatus(200);
-//		}else {
-//			res.setData(null);
-//			res.setStatus(-1);
-//			res.setMsg("Email is already Exists");
-//		}
-//		return res;
-//	}
 	
 	//for authtoken use table usersauth
 	@PostMapping("/signupcus")
 	public ResponceUserBeanAuth<?> addUserCus(@RequestBody UserBeanAuth bean){
 		UserBeanAuth duplicate=userDao.findUser(bean);
-		
 		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
 		if(duplicate==null) {
 			GenerateToken gen=new GenerateToken();
@@ -185,20 +174,40 @@ public class UserController {
 		return res;
 	}
 	
+	//get token (use for login)
 	@GetMapping("/getAnyToken")
 	public String getAnyToken() {
 		return userDao.getAnyToken();
 	}
 	
-	@GetMapping("/userauth")
-	public ResponseEntity<?> getAllUsreAuth(){
-//		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
-		List<UserBeanAuth> users=userDao.getAllUserAuth("yc4McUkus3");
-		if(users.size()==0) {
-			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//  get user (first check by token after getting all record)
+//	@GetMapping("/userauth")
+//	public ResponseEntity<?> getAllUsreAuth(@RequestBody UserBeanAuth bean){
+//		List<UserBeanAuth> users=userDao.getAllUserAuth(bean.getAuthtoken());
+//		if(users.size()==0) {
+//			return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+//		}else {
+//			return ResponseEntity.ok(users);
+//		}
+//	}
+	
+	//get user (first check by token after getting all record)
+	@PostMapping("/userauth")
+	public ResponceUserBeanAuth<List<UserBeanAuth>> getAllUserAuth(@RequestBody UserBeanAuth bean){
+		ResponceUserBeanAuth<List<UserBeanAuth>> res = new ResponceUserBeanAuth<>();
+		List<UserBeanAuth> users = userDao.getAllUserAuth(bean.getAuthtoken());
+		if(users != null) {
+			res.setData(users);
+			res.setStatus(200);
+			res.setMsg("Login Successfully");
 		}else {
-			return ResponseEntity.ok(users);
+			res.setData(null);
+			res.setStatus(401);
+			res.setMsg("Unauthorized");
 		}
+		return res;
 	}
+	
+	
 
 }

@@ -11,6 +11,9 @@ public class UserBeanAuth {
 	String phonenum;
 	String address;
 	String authtoken;
+	String productid;
+	String cartdata;
+	
 	
 	public String getAuthtoken() {
 		return authtoken;
@@ -71,6 +74,18 @@ public class UserBeanAuth {
 	}
 	public void setAddress(String address) {
 		this.address = address;
+	}
+	public String getProductid() {
+		return productid;
+	}
+	public void setProductid(String productid) {
+		this.productid = productid;
+	}
+	public String getCartdata() {
+		return cartdata;
+	}
+	public void setCartdata(String cartdata) {
+		this.cartdata = cartdata;
 	}
 	
 }
