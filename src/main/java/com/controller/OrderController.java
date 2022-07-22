@@ -22,16 +22,44 @@ public class OrderController {
 	@Autowired
 	OrderDao orderDao;
 	
+	//before add order
 	@PostMapping("/order")
 	public boolean addOrder(@RequestBody OrderBean order) {
 		return orderDao.addOrder(order);
 	}
 	
+	//after add order
+	@PostMapping("/orderauth")
+	public ResponceUserBeanAuth<?> addOrderAuth(@RequestBody OrderBean order,@RequestHeader("authToken") String authToken) {
+		ResponceUserBeanAuth<OrderBean> orders = new ResponceUserBeanAuth<OrderBean>();
+		boolean check = orderDao.userAuthentication(order.getUserid(), authToken);
+		if(check) {
+			boolean check_product = orderDao.addOrderAuth(order);
+			if(check_product) {
+				orders.setData(order);
+				orders.setStatus(200);
+				orders.setMsg("Order Add Successfully");
+			}else {
+				orders.setData(null);
+				orders.setStatus(500);
+				orders.setMsg("Internal Server Error");
+			}
+		}else {
+			orders.setData(null);
+			orders.setStatus(401);
+			orders.setMsg("Unauthorized");
+		}
+		return orders;
+	}
+	
+	
+	//before to get orders
 	@RequestMapping(value="/orders/{userid}",method=RequestMethod.GET)
 	public OrderBean getOrders(@PathVariable int userid) {
 		return orderDao.getOrders(userid);
 	}
 	
+	//after get order using authentication
 	@GetMapping("/order")
 	public ResponceUserBeanAuth<?> getOrdersAuth(@RequestHeader("userId") int userId, @RequestHeader("authToken") String authToken){
 		ResponceUserBeanAuth<OrderBean> orders = new ResponceUserBeanAuth<OrderBean>();
