@@ -111,4 +111,14 @@ public class UserDao {
 		st.update("update usersa set authtoken = ? where email=?",str,email);
 	}
 	
+	//check user for send email
+	public boolean checkUser(UserBeanAuth user) {
+		List<UserBeanAuth> users = st.query("select * from usersa where authtoken = ? and userid = ? and email = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken(),user.getUserid(),user.getEmail()});
+		if(users.size() == 0) {
+			return false;
+		}else {
+			return true;
+		}
+	}
+	
 }

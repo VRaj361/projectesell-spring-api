@@ -13,7 +13,7 @@ public class UserBeanAuth {
 	String authtoken;
 	String productid;
 	String cartdata;
-	
+	String otp;
 	
 	public String getAuthtoken() {
 		return authtoken;
@@ -86,6 +86,12 @@ public class UserBeanAuth {
 	}
 	public void setCartdata(String cartdata) {
 		this.cartdata = cartdata;
+	}
+	public String getOtp() {
+		return otp;
+	}
+	public void setOtp(String otp) {
+		this.otp = otp;
 	}
 	
 }

@@ -12,11 +12,14 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.bcrypt.BCrypt;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.bean.ResponceUserBean;
@@ -36,6 +39,8 @@ public class UserController {
 	@Autowired
 	EmailService email_service;
 	
+	@Autowired
+	BCryptPasswordEncoder bcypt;
 	
 	@PostMapping("/user")
 	public UserBean addUser(@RequestBody UserBean user) {
@@ -54,16 +59,18 @@ public class UserController {
 		return user;
 	}
 	
-
+	
 	@PostMapping("/sendemailu")
-	 public boolean sendEmailOfPassword(@RequestBody UserBean user) throws AddressException, MessagingException, IOException {
+	public boolean sendEmailOfPassword(@RequestBody UserBean user) throws AddressException, MessagingException, IOException {
 	  //call the email method in main service method
 	  UserBean user1=userDao.particularUSer(user.getUserid());
 	  return email_service.sendPassword(user1.getEmail(),user1.getPassword());
 
-	 }
+	}
 	
-
+	
+	
+	//before send email for otp
 	@PostMapping("/sendemail")
 	public String checkSendEmail(@RequestBody UserBean user) {
 		System.out.println("email -> recived "+user.getEmail());
@@ -87,6 +94,7 @@ public class UserController {
 	}
 	
 	
+	
 	/*
 	 * 
 	 * 
@@ -108,6 +116,8 @@ public class UserController {
 //	}
 	
 	
+	//login ,signup, updateuser all api can change authtoken every call
+	//duplicate user found 
 	//for authtoken use table usersauth
 	@PostMapping("/signupcus")
 	public ResponceUserBeanAuth<?> addUserCus(@RequestBody UserBeanAuth bean){
@@ -192,10 +202,11 @@ public class UserController {
 //	}
 	
 	//get user (first check by token after getting all record)
-	@PostMapping("/userauth")
-	public ResponceUserBeanAuth<List<UserBeanAuth>> getAllUserAuth(@RequestBody UserBeanAuth bean){
+	//provide random authtoken for access record
+	@GetMapping("/userauth")
+	public ResponceUserBeanAuth<List<UserBeanAuth>> getAllUserAuth(@RequestHeader("authToken") String authToken){
 		ResponceUserBeanAuth<List<UserBeanAuth>> res = new ResponceUserBeanAuth<>();
-		List<UserBeanAuth> users = userDao.getAllUserAuth(bean.getAuthtoken());
+		List<UserBeanAuth> users = userDao.getAllUserAuth(authToken);
 		if(users != null) {
 			res.setData(users);
 			res.setStatus(200);
@@ -208,6 +219,45 @@ public class UserController {
 		return res;
 	}
 	
+	//sending mail and getting authenticated otp to check user otp
+	@PostMapping("/otpemail")
+	public String sendEmailForOTP(@RequestBody UserBeanAuth user) {
+		boolean check = userDao.checkUser(user);
+		if(check) {
+			Random rnd = new Random();
+			int number = rnd.nextInt(999999);
+			String otp = String.format("%06d", number);
+			try {
+				email_service.sendOtp(user.getEmail(), otp);
+				//encryption in otp
+				String str=bcypt.encode(otp);
+				System.out.println("match+--->"+bcypt.matches(otp, str));
+				return bcypt.encode(otp);//save as front end cookie
+			}catch(Exception e) {
+				e.printStackTrace();
+				return "-1";
+			}
+		}else {
+			return "-1";
+		}
+	}
 	
+	//check password using decryption algorithm
+	@PostMapping("/otpemailcheck")
+	public boolean checkOtpEmail(@RequestBody UserBeanAuth user) {
+		boolean check = userDao.checkUser(user);
+		if(check && user.getOtp().length()>8) {
+			//decrypt
+			//client side set otp and cookie otp as comma seprated
+			String[] otps = user.getOtp().split(",");
+			if(bcypt.matches(otps[0], otps[1])) {
+				return true;
+			}else {
+				return false;
+			}
+		}else {
+			return false;
+		}
+	}
 
 }
