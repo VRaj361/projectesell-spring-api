@@ -70,15 +70,10 @@ public class ProductDao {
 				st.update("update usersa set cartdata=? where userid=?", bean.getProductid(), bean.getUserid());
 			}else {
 				List<String> cartData = new ArrayList<>(Arrays.asList(user.get(0).getCartdata().split(",")));
-				System.out.println("cartData---->"+cartData);
 				int index = cartData.indexOf(bean.getProductid());
-				System.out.println("index---->"+index);
 				if(index == -1) {
-					System.out.println("in index");
 					cartData.add(bean.getProductid());
-					System.out.println(cartData);
 					String str = String.join(",", cartData);
-					System.out.println("string--->"+str);
 					st.update("update usersa set cartdata=? where userid=?", str, bean.getUserid());
 				}
 			}
@@ -119,9 +114,9 @@ public class ProductDao {
 	}
 	
 	//after view cart products
-	public List<ProductBean> getAllViewCartProductsAuth(UserBeanAuth bean){
-		List<UserBeanAuth> user = st.query("select * from usersa where userid = ? and authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {bean.getUserid(),bean.getAuthtoken()});
-		if(user.size() == 0) {
+	public List<ProductBean> getAllViewCartProductsAuth(int userid,String authtoken){
+		List<UserBeanAuth> user = st.query("select * from usersa where userid = ? and authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {userid,authtoken});
+		if(user.size() == 0 || user.get(0).getCartdata().equals("")) {
 			return null;
 		}else {
 			List<String> cartData = Arrays.asList(user.get(0).getCartdata().split(","));
@@ -185,7 +180,6 @@ public class ProductDao {
 			if(index != -1) {
 				cartData.remove(bean.getProductid());
 				String str = String.join(",", cartData);
-				System.out.println("Deleted value---->"+str);
 				st.update("update usersa set cartdata=? where userid=?", str, bean.getUserid());
 				return true;
 			}else {
@@ -215,66 +209,7 @@ public class ProductDao {
 	}
 	
 	
-	
-	
-	
-	
-	// copy products detail to shift into order bean detail
-	public boolean addOrder(OrderBean order) {
-		List<UserBean> cartData = st.query("select cartdata from users where userid=?",
-				new BeanPropertyRowMapper<UserBean>(UserBean.class), new Object[] { order.getUserid() });
-		String data = cartData.get(0).getCartdata();
-
-		if (data != null) {
-			if (data.charAt(0) == ',') {
-				data = data.substring(1);
-			}
-			String[] arr = data.split(",");
-			Set<String> set = new HashSet<>(Arrays.asList(arr));
-
-			String str = "";
-			String[] arr1 = new String[set.size()];
-			set.toArray(arr1);
-			for (int i = 0; i < arr1.length; i++) {
-				if (i == arr1.length - 1) {
-					str += arr1[i];
-				} else {
-					str += arr1[i] + ',';
-				}
-			}
-			order.setOrderdata(str);
-			
-			//calculate the bill amount
-			int billAmount=0;
-			for(String x:arr1) {
-				int val=Integer.parseInt(x);
-				List<ProductBean> prod =  st.query("select price from products where productid=?",
-						new BeanPropertyRowMapper<ProductBean>(ProductBean.class), new Object[] { val });
-				billAmount+=Integer.parseInt(prod.get(0).getPrice());
-			}
-			List<OrderBean> orders= st.query("select * from orders where userid=?",new BeanPropertyRowMapper<OrderBean>(OrderBean.class),new Object[] {order.getUserid()});
-			if(orders.size()==0) {
-				if(billAmount>500) {
-					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax) values (?,?,?,?,?,?,?,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,0);
-				}else {
-					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax) values (?,?,?,?,?,?,?,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,50);
-				}
-				return true;
-			}else {
-				return false;
-			}
-		}
-		return false;
-
-	}
-	
-	public OrderBean getOrders(int userid) {
-		List<OrderBean> orders=st.query("select * from orders where userid=?", 
-				new BeanPropertyRowMapper<OrderBean>(OrderBean.class), new Object[] { userid });
-//		System.out.println("orders=> "+orders.get(0).getBilladdress());
-		return orders.get(0);
-	}
-
+	//add product
 	public void addProduct(ProductBean product) {
 		st.update(
 				"insert into products (productname,price,description,location,title,userid,rating,productid) values (?,?,?,?,?,?,?,?)",

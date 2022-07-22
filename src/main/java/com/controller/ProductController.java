@@ -10,10 +10,12 @@ import org.json.JSONArray;
 import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -86,10 +88,10 @@ public class ProductController {
 	}
 	
 	//after viewcart data
-	@PostMapping("/productviewcart")
-	public ResponceUserBeanAuth<List<ProductBean>> getAllViewCartProductsAuth(@RequestBody UserBeanAuth bean){
+	@GetMapping("/productviewcart")
+	public ResponceUserBeanAuth<List<ProductBean>> getAllViewCartProductsAuth(@RequestHeader("userId") int userId, @RequestHeader("authToken") String authToken){
 		ResponceUserBeanAuth<List<ProductBean>> res = new ResponceUserBeanAuth<>();
-		List<ProductBean> products = productDao.getAllViewCartProductsAuth(bean);
+		List<ProductBean> products = productDao.getAllViewCartProductsAuth(userId, authToken);
 		if(products != null) {
 			res.setData(products);
 			res.setStatus(200);
@@ -110,7 +112,7 @@ public class ProductController {
 	}//delete particular product
 	
 	//after delete particular product
-	@PostMapping("/deleteproduct")
+	@DeleteMapping("/deleteproduct")
 	public ResponceUserBeanAuth<?> deleteParticularProduct(@RequestBody UserBeanAuth bean){
 		ResponceUserBeanAuth<Boolean> res = new ResponceUserBeanAuth<>();  
 		boolean check = productDao.deleteParticularProductsAuth(bean);
@@ -133,7 +135,7 @@ public class ProductController {
 	}
 	
 	//after delete all products
-	@PostMapping(value="/deleteAllProducts")
+	@DeleteMapping(value="/deleteAllProducts")
 	public ResponceUserBeanAuth<?> deleteAllProductsAuth(@RequestBody UserBeanAuth bean) {
 		ResponceUserBeanAuth<Boolean> res = new ResponceUserBeanAuth<>();  
 		boolean check = productDao.deleteAllProductsAuth(bean);
@@ -150,21 +152,6 @@ public class ProductController {
 		
 	}
 	
-
-	
-	
-	
-	
-	
-	@PostMapping("/order")
-	public boolean addOrder(@RequestBody OrderBean order) {
-		return productDao.addOrder(order);
-	}
-	
-	@RequestMapping(value="/orders/{userid}",method=RequestMethod.GET)
-	public OrderBean getOrders(@PathVariable int userid) {
-		return productDao.getOrders(userid);
-	}
 	
 	
 	@PostMapping("/product")
