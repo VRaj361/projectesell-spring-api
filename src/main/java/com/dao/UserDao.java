@@ -99,7 +99,6 @@ public class UserDao {
 	//get user using token(login)
 	public List<UserBeanAuth> getAllUserAuth(String token){
 		List<UserBeanAuth> user=st.query("select * from usersa where authtoken=?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {token});
-		System.out.println(user+"   "+token);
 		if(user.size() == 0) {
 			return null;
 		}else {

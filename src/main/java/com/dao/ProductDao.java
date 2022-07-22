@@ -41,10 +41,8 @@ public class ProductDao {
 		return st.query("select * from products where productname like CONCAT( '%',?,'%') or title like CONCAT( '%',?,'%') or description like CONCAT( '%',?,'%')", new BeanPropertyRowMapper<ProductBean>(ProductBean.class), new Object[] { name,name,name });
 	}
 	
-	
-	
-	
-	//user cartdata
+	//before
+	//user cartdata add product or update product
 	public ProductBean getParticularProduct1(long id, long userid) {
 		List<UserBean> cartdata = st.query("select cartdata from users where userid=?",
 				new BeanPropertyRowMapper<UserBean>(UserBean.class), new Object[] { userid });
@@ -61,8 +59,32 @@ public class ProductDao {
 	}// get particular product
 
 	
-	
-	
+	//after
+	//addtoproduct
+	public ProductBean addToCartProduct(UserBeanAuth bean) {
+		List<UserBeanAuth> user = st.query("select * from usersa where userid = ? and authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {bean.getUserid(),bean.getAuthtoken()});
+		if(user.size() == 0) {
+			return null;
+		}else {
+			if(user.get(0).getCartdata() == null || user.get(0).getCartdata().length() == 0) {
+				st.update("update usersa set cartdata=? where userid=?", bean.getProductid(), bean.getUserid());
+			}else {
+				List<String> cartData = new ArrayList<>(Arrays.asList(user.get(0).getCartdata().split(",")));
+				System.out.println("cartData---->"+cartData);
+				int index = cartData.indexOf(bean.getProductid());
+				System.out.println("index---->"+index);
+				if(index == -1) {
+					System.out.println("in index");
+					cartData.add(bean.getProductid());
+					System.out.println(cartData);
+					String str = String.join(",", cartData);
+					System.out.println("string--->"+str);
+					st.update("update usersa set cartdata=? where userid=?", str, bean.getUserid());
+				}
+			}
+			return st.query("select * from products where productid = ?", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {Integer.parseInt(bean.getProductid())}).get(0);
+		}
+	}
 	
 	
 	//before view cart products
@@ -98,7 +120,7 @@ public class ProductDao {
 	
 	//after view cart products
 	public List<ProductBean> getAllViewCartProductsAuth(UserBeanAuth bean){
-		List<UserBeanAuth> user = st.query("select * from usersa where userid = ? and authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(),new Object[] {bean.getUserid(),bean.getAuthtoken()});
+		List<UserBeanAuth> user = st.query("select * from usersa where userid = ? and authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {bean.getUserid(),bean.getAuthtoken()});
 		if(user.size() == 0) {
 			return null;
 		}else {
@@ -154,16 +176,17 @@ public class ProductDao {
 	
 	//after delete particular product
 	public boolean deleteParticularProductsAuth(UserBeanAuth bean) {
-		List<UserBeanAuth> user = st.query("select * from usersa where authtoken = ?",new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {bean.getAuthtoken()});
+		List<UserBeanAuth> user = st.query("select * from usersa where userid=? and authtoken = ?",new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {bean.getUserid(),bean.getAuthtoken()});
 		if(user.size()==1) {
 			List<UserBean> cartdata = st.query("select cartdata from usersa where userid=?",
 					new BeanPropertyRowMapper<UserBean>(UserBean.class), new Object[] { bean.getUserid() });
-			List<String> cartData = Arrays.asList(cartdata.get(0).getCartdata().split(","));
+			List<String> cartData = new ArrayList<>(Arrays.asList(cartdata.get(0).getCartdata().split(",")));
 			int index = cartData.indexOf(bean.getProductid());
 			if(index != -1) {
-				cartData.remove(index);
+				cartData.remove(bean.getProductid());
 				String str = String.join(",", cartData);
 				System.out.println("Deleted value---->"+str);
+				st.update("update usersa set cartdata=? where userid=?", str, bean.getUserid());
 				return true;
 			}else {
 				return false;
@@ -184,7 +207,7 @@ public class ProductDao {
 	public boolean deleteAllProductsAuth(UserBeanAuth bean) {
 		List<UserBeanAuth> user = st.query("select * from usersa where authtoken = ?",new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {bean.getAuthtoken()});
 		if(user.size()==1) {
-			st.update("update usersa set cartdata = '' where userid=?", bean.getUserid());
+			st.update("update usersa set cartdata = '' where userid=?", user.get(0).getUserid());
 			return true;
 		}else {
 			return false;

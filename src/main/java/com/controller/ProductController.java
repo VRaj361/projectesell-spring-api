@@ -53,14 +53,31 @@ public class ProductController {
 		return productDao.getSearchProducts(bean.getProductname());
 	}
 	
-	
-	
-	
+	//before
+	//add cartdata in user table 
+	//also update cartdata in user table
 	@RequestMapping(value="products/{id}/{userid}",method = RequestMethod.GET)
 	public ProductBean getParticularProduct1(@PathVariable long id,@PathVariable long userid) {
 		return productDao.getParticularProduct1(id,userid);
 	}
 	
+	//after
+	//add cartdata or update cart data
+	@PostMapping("/addtocartproduct")
+	public ResponceUserBeanAuth<?> addToCartProduct(@RequestBody UserBeanAuth user){
+		ResponceUserBeanAuth<ProductBean> res = new ResponceUserBeanAuth<>();
+		ProductBean product = productDao.addToCartProduct(user);
+		if(product != null) {
+			res.setData(product);
+			res.setStatus(200);
+			res.setMsg("View Cart Products");
+		}else {
+			res.setData(null);
+			res.setStatus(401);
+			res.setMsg("Unauthorized");
+		}
+		return res;
+	}
 	
 	//before viewcart data
 	@RequestMapping(value="products/{userid}",method=RequestMethod.GET)
@@ -93,13 +110,13 @@ public class ProductController {
 	}//delete particular product
 	
 	//after delete particular product
-	@PostMapping("/productdelete")
+	@PostMapping("/deleteproduct")
 	public ResponceUserBeanAuth<?> deleteParticularProduct(@RequestBody UserBeanAuth bean){
 		ResponceUserBeanAuth<Boolean> res = new ResponceUserBeanAuth<>();  
 		boolean check = productDao.deleteParticularProductsAuth(bean);
 		if(check) {
 			res.setData(true);
-			res.setMsg("All Products Delete Successfully");
+			res.setMsg("Product Delete Successfully");
 			res.setStatus(200);
 		}else {
 			res.setData(false);
