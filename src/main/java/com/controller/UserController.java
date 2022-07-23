@@ -168,7 +168,7 @@ public class UserController {
 	public ResponceUserBeanAuth<?> loginUserCus(@RequestBody UserBeanAuth bean){
 		ResponceUserBeanAuth<UserBeanAuth> res = new ResponceUserBeanAuth<>();
 		UserBeanAuth user = userDao.findUserLogin(bean);
-		if(user != null) {
+		if(user != null ) {
 			GenerateToken gen=new GenerateToken();
 			String str=gen.generateToken(10);
 			userDao.setToken(user.getEmail(),str);

@@ -66,6 +66,9 @@ public class UserDao {
 			return null;//user does not exists
 		}else {
 			List<UserBeanAuth> loginUser=st.query("select * from usersa where email = ? and password = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getEmail(),user.getPassword()});
+			if(loginUser == null ||loginUser.size() == 0) {
+				return null;
+			}
 			return loginUser.get(0);//user can exists
 		}
 	}
