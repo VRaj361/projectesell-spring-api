@@ -145,9 +145,15 @@ public class UserController {
 	@PutMapping("/updatecus")
 	public ResponceUserBeanAuth<?> updateUserCus(@RequestBody UserBeanAuth bean){
 		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
+		System.out.println("in");
 		UserBeanAuth user = userDao.findKey(bean);
 		if(user != null) {
 			UserBeanAuth userResp = userDao.updateUserCus(bean);
+			if(userResp == null) {
+				res.setData(null);
+				res.setStatus(401);
+				res.setMsg("Incorrect Data");
+			}
 			GenerateToken gen=new GenerateToken();
 			String str=gen.generateToken(10);
 			userDao.setToken(userResp.getEmail(),str);
@@ -185,6 +191,42 @@ public class UserController {
 		}
 		return res;
 	}
+	
+	
+	//get all data for particular user using authtoken
+	@GetMapping("/getuserdata")
+	public ResponceUserBeanAuth<?> getUserData(@RequestHeader("authtoken") String authtoken){
+		ResponceUserBeanAuth<UserBeanAuth> res_user=new ResponceUserBeanAuth<UserBeanAuth>();
+		UserBeanAuth user= userDao.getUserData(authtoken);
+		if(user ==null) {
+			res_user.setData(null);
+			res_user.setMsg("User Does not Exists");
+			res_user.setStatus(404);
+		}else {
+			res_user.setData(user);
+			res_user.setMsg("Getting Data Successfully");
+			res_user.setStatus(200);
+		}
+		return res_user;
+	}
+	
+	//check the data of user
+	@PostMapping("/checkuserdata")
+	public ResponceUserBeanAuth<?> checkUserData(@RequestBody UserBeanAuth bean){
+		ResponceUserBeanAuth<UserBeanAuth> res_user=new ResponceUserBeanAuth<UserBeanAuth>();
+		UserBeanAuth user = userDao.checkUserData(bean);
+		if(user ==null) {
+			res_user.setData(null);
+			res_user.setMsg("User Does not Exists");
+			res_user.setStatus(404);
+		}else {
+			res_user.setData(user);
+			res_user.setMsg("Getting Data Successfully");
+			res_user.setStatus(200);
+		}
+		return res_user;
+	}
+	
 	
 	//get token (use for login)
 	@GetMapping("/getAnyToken")

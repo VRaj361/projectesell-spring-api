@@ -82,6 +82,17 @@ public class UserDao {
 		}
 	}
 	
+	//return particular user based on authtoken
+	public UserBeanAuth getUserData(String authtoken) {
+		List<UserBeanAuth> user = st.query("select * from usersa where authtoken = ?",new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken});
+		if(user == null) {
+			return null;
+		}else {
+			return user.get(0);
+		}
+	}
+	
+	
 	//get token from the database
 	public String getAnyToken() {
 		List<UserBeanAuth> user= st.query("select authtoken from usersa order by random() limit 1", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {});
@@ -101,11 +112,33 @@ public class UserDao {
 	//updatedata according condition
 	public UserBeanAuth updateUserCus(UserBeanAuth user) {
 		if(user.getPassword()!=null) {
+			user.setPassword(bcypt.encode(user.getPassword()));
 			st.update("update usersa set password=? where authtoken=?",user.getPassword(),user.getAuthtoken());
-		}else if(user.getAddress()!=null && user.getFirstname()!=null && user.getLastname()!=null && user.getPhonenum()!=null) {
+		}else if(user.getFirstname()!=null && user.getLastname()!=null && user.getPhonenum()!=null) {
 			st.update("update usersa set firstname=?,lastname=?,phonenum=?,address=? where authtoken=?",user.getFirstname(),user.getLastname(),user.getPhonenum(),user.getAddress(),user.getAuthtoken());
+		}//address different
+		else {
+			return null;
 		}
 		return st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken()}).get(0);
+	}
+	
+	//checking data for user using auth and other data
+	public UserBeanAuth checkUserData(UserBeanAuth user) {
+		if(user.getPassword()!=null) {
+			List<UserBeanAuth> req_user = st.query("select * from usersa where authtoken=?",new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken()});
+			if(req_user == null || req_user.size() == 0) {
+				return null;
+			}else {
+				if(bcypt.matches(user.getPassword(), req_user.get(0).getPassword())) {
+					return req_user.get(0);
+				}else {
+					return null;
+				}
+			}
+		}else {
+			return null;
+		}
 	}
 	
 	//get user using token(login)
