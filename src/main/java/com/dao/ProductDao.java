@@ -62,22 +62,24 @@ public class ProductDao {
 	//after
 	//addtoproduct
 	public ProductBean addToCartProduct(UserBeanAuth bean) {
-		List<UserBeanAuth> user = st.query("select * from usersa where userid = ? and authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {bean.getUserid(),bean.getAuthtoken()});
+		List<UserBeanAuth> user = st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {bean.getAuthtoken()});
 		if(user.size() == 0) {
 			return null;
 		}else {
 			if(user.get(0).getCartdata() == null || user.get(0).getCartdata().length() == 0) {
-				st.update("update usersa set cartdata=? where userid=?", bean.getProductid(), bean.getUserid());
+				st.update("update usersa set cartdata=? where userid=?", bean.getProductid(), user.get(0).getUserid());
 			}else {
 				List<String> cartData = new ArrayList<>(Arrays.asList(user.get(0).getCartdata().split(",")));
 				int index = cartData.indexOf(bean.getProductid());
 				if(index == -1) {
 					cartData.add(bean.getProductid());
 					String str = String.join(",", cartData);
-					st.update("update usersa set cartdata=? where userid=?", str, bean.getUserid());
+					st.update("update usersa set cartdata=? where userid=?", str, user.get(0).getUserid());
 				}
 			}
-			return st.query("select * from products where productid = ?", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {Integer.parseInt(bean.getProductid())}).get(0);
+			ProductBean pro= st.query("select * from products where productid = ?", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {Integer.parseInt(bean.getProductid())}).get(0);
+			pro.setUserid(user.get(0).getUserid());
+			return pro;
 		}
 	}
 	

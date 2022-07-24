@@ -128,7 +128,7 @@ public class UserController {
 		if(duplicate==null) {
 			GenerateToken gen=new GenerateToken();
 			String str=gen.generateToken(10);
-			userDao.setToken(bean.getEmail(),str);
+			userDao.setTokenE(bean.getEmail(),str);
 			bean.setAuthtoken(str);
 			res.setData(bean);
 			res.setMsg("Signup Successfully");
@@ -156,7 +156,7 @@ public class UserController {
 			}
 			GenerateToken gen=new GenerateToken();
 			String str=gen.generateToken(10);
-			userDao.setToken(bean.getAuthtoken(),str);
+			userDao.setTokenA(bean.getAuthtoken(),str);
 			userResp.setAuthtoken(str);
 			res.setData(userResp);
 			res.setStatus(200);
@@ -179,7 +179,7 @@ public class UserController {
 		if(user != null ) {
 			GenerateToken gen=new GenerateToken();
 			String str=gen.generateToken(10);
-			userDao.setToken(user.getEmail(),str);
+			userDao.setTokenE(user.getEmail(),str);
 			user.setAuthtoken(str);
 			res.setData(user);
 			res.setStatus(200);

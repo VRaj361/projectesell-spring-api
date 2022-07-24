@@ -153,8 +153,11 @@ public class UserDao {
 	}
 
 	//set token in database(signup)
-	public void setToken(String authtoken,String str) {
+	public void setTokenA(String authtoken,String str) {
 		st.update("update usersa set authtoken = ? where authtoken=?",str,authtoken);
+	}
+	public void setTokenE(String email,String str) {
+		st.update("update usersa set authtoken = ? where email=?",str,email);
 	}
 	
 	//check user for send email

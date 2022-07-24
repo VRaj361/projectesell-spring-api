@@ -89,9 +89,10 @@ public class ProductController {
 	
 	//after viewcart data
 	@GetMapping("/productviewcart")
-	public ResponceUserBeanAuth<List<ProductBean>> getAllViewCartProductsAuth(@RequestHeader("userId") int userId, @RequestHeader("authToken") String authToken){
+	public ResponceUserBeanAuth<List<ProductBean>> getAllViewCartProductsAuth(@RequestHeader("userid") int userid, @RequestHeader("authtoken") String authtoken){
+		System.out.println("userid==="+userid+"token---"+authtoken);
 		ResponceUserBeanAuth<List<ProductBean>> res = new ResponceUserBeanAuth<>();
-		List<ProductBean> products = productDao.getAllViewCartProductsAuth(userId, authToken);
+		List<ProductBean> products = productDao.getAllViewCartProductsAuth(userid, authtoken);
 		if(products != null) {
 			res.setData(products);
 			res.setStatus(200);
@@ -114,6 +115,7 @@ public class ProductController {
 	//after delete particular product
 	@DeleteMapping("/deleteproduct")
 	public ResponceUserBeanAuth<?> deleteParticularProduct(@RequestBody UserBeanAuth bean){
+		System.out.println(bean.getUserid()+" "+bean.getProductid()+" "+bean.getAuthtoken());
 		ResponceUserBeanAuth<Boolean> res = new ResponceUserBeanAuth<>();  
 		boolean check = productDao.deleteParticularProductsAuth(bean);
 		if(check) {
