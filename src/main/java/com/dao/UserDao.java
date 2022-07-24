@@ -162,8 +162,8 @@ public class UserDao {
 	
 	//check user for send email
 	public boolean checkUser(UserBeanAuth user) {
-		List<UserBeanAuth> users = st.query("select * from usersa where authtoken = ? and userid = ? and email = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken(),user.getUserid(),user.getEmail()});
-		if(users.size() == 0) {
+		List<UserBeanAuth> users = st.query("select * from usersa where authtoken = ?  ", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken()});
+		if(users.size()==0 || users == null) {
 			return false;
 		}else {
 			return true;

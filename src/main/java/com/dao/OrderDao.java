@@ -72,8 +72,8 @@ public class OrderDao {
 		
 		
 		//header to check user is exists or not
-		public boolean userAuthentication(int userid,String authtoken) {
-			List<UserBeanAuth> user = st.query("select * from usersa where userid = ? and authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {userid,authtoken});
+		public boolean userAuthentication(String authtoken) {
+			List<UserBeanAuth> user = st.query("select * from usersa where  authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken});
 			if(user.size() == 0 || user == null) {
 				return false;
 			}else {
@@ -123,13 +123,13 @@ public class OrderDao {
 		}
 		
 		//after get order of particular user(authentication required)
-		public OrderBean getOrdersAuth(int userid,String authtoken) {
-			List<UserBeanAuth> user = st.query("select * from usersa where userid = ? and authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {userid,authtoken});
+		public OrderBean getOrdersAuth(String authtoken) {
+			List<UserBeanAuth> user = st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken});
 			if(user.size() == 0 || user == null) {
 				return null;
 			}else {
 				return st.query("select * from orders where userid=?", 
-						new BeanPropertyRowMapper<OrderBean>(OrderBean.class), new Object[] { userid }).get(0);
+						new BeanPropertyRowMapper<OrderBean>(OrderBean.class), new Object[] { user.get(0).getUserid() }).get(0);
 			}
 		}
 		

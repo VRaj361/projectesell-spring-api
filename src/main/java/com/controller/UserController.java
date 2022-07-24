@@ -229,7 +229,7 @@ public class UserController {
 	
 	
 	//get token (use for login)
-	@GetMapping("/getAnyToken")
+	@GetMapping("/getanytoken")
 	public String getAnyToken() {
 		return userDao.getAnyToken();
 	}
@@ -289,8 +289,8 @@ public class UserController {
 	//check password using decryption algorithm
 	@PostMapping("/otpemailcheck")
 	public boolean checkOtpEmail(@RequestBody UserBeanAuth user) {
-		boolean check = userDao.checkUser(user);
-		if(check && user.getOtp().length()>8) {
+//		boolean check = userDao.checkUser(user); condition check&&
+		if( user.getOtp().length()>8) {
 			//decrypt
 			//client side set otp and cookie otp as comma seprated
 			String[] otps = user.getOtp().split(",");
