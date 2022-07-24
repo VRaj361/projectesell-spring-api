@@ -156,7 +156,7 @@ public class UserController {
 			}
 			GenerateToken gen=new GenerateToken();
 			String str=gen.generateToken(10);
-			userDao.setToken(userResp.getEmail(),str);
+			userDao.setToken(bean.getAuthtoken(),str);
 			userResp.setAuthtoken(str);
 			res.setData(userResp);
 			res.setStatus(200);

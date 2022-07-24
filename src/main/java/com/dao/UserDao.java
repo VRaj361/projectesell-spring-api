@@ -115,9 +115,10 @@ public class UserDao {
 			user.setPassword(bcypt.encode(user.getPassword()));
 			st.update("update usersa set password=? where authtoken=?",user.getPassword(),user.getAuthtoken());
 		}else if(user.getFirstname()!=null && user.getLastname()!=null && user.getPhonenum()!=null) {
-			st.update("update usersa set firstname=?,lastname=?,phonenum=?,address=? where authtoken=?",user.getFirstname(),user.getLastname(),user.getPhonenum(),user.getAddress(),user.getAuthtoken());
-		}//address different
-		else {
+			st.update("update usersa set firstname=?,lastname=?,phonenum=? where authtoken=?",user.getFirstname(),user.getLastname(),user.getPhonenum(),user.getAuthtoken());
+		}else if(user.getAddress()!=null) {
+			st.update("update usersa set address=? where authtoken=?",user.getAddress(),user.getAuthtoken());
+		}else {
 			return null;
 		}
 		return st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken()}).get(0);
@@ -152,8 +153,8 @@ public class UserDao {
 	}
 
 	//set token in database(signup)
-	public void setToken(String email,String str) {
-		st.update("update usersa set authtoken = ? where email=?",str,email);
+	public void setToken(String authtoken,String str) {
+		st.update("update usersa set authtoken = ? where authtoken=?",str,authtoken);
 	}
 	
 	//check user for send email
