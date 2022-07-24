@@ -121,6 +121,8 @@ public class UserController {
 	//for authtoken use table usersauth
 	@PostMapping("/signupcus")
 	public ResponceUserBeanAuth<?> addUserCus(@RequestBody UserBeanAuth bean){
+		String pass_enc=bcypt.encode(bean.getPassword());
+		bean.setPassword(pass_enc);
 		UserBeanAuth duplicate=userDao.findUser(bean);
 		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
 		if(duplicate==null) {

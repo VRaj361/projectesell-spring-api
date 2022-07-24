@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Repository;
 
 import com.bean.UserBean;
@@ -16,6 +17,9 @@ public class UserDao {
 	
 	@Autowired
 	JdbcTemplate st;
+	
+	@Autowired
+	BCryptPasswordEncoder bcypt;
 	
 	public void addUser(UserBean user) {
 		st.update("insert into users (firstname,lastname,createdate,gender,email,password,phonenum,roleid,address) values (?,?,?,?,?,?,?,2,'')",user.getFirstname(),user.getLastname(),user.getCreatedate(),user.getGender(),user.getEmail(),user.getPassword(),user.getPhonenum());		
@@ -65,11 +69,16 @@ public class UserDao {
 		if(users.size()==0) {
 			return null;//user does not exists
 		}else {
-			List<UserBeanAuth> loginUser=st.query("select * from usersa where email = ? and password = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getEmail(),user.getPassword()});
+			List<UserBeanAuth> loginUser=st.query("select * from usersa where email = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getEmail()});
 			if(loginUser == null ||loginUser.size() == 0) {
 				return null;
+			}else {
+				if(bcypt.matches(user.getPassword(), loginUser.get(0).getPassword())) {
+					return loginUser.get(0);
+				}else {
+					return null;
+				}
 			}
-			return loginUser.get(0);//user can exists
 		}
 	}
 	
