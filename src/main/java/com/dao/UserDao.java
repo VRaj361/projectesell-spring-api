@@ -112,8 +112,7 @@ public class UserDao {
 	//updatedata according condition
 	public UserBeanAuth updateUserCus(UserBeanAuth user) {
 		if(user.getPassword()!=null) {
-			user.setPassword(bcypt.encode(user.getPassword()));
-			st.update("update usersa set password=? where authtoken=?",user.getPassword(),user.getAuthtoken());
+			st.update("update usersa set password=? where authtoken=?",bcypt.encode(user.getPassword()),user.getAuthtoken());
 		}else if(user.getFirstname()!=null && user.getLastname()!=null && user.getPhonenum()!=null) {
 			st.update("update usersa set firstname=?,lastname=?,phonenum=? where authtoken=?",user.getFirstname(),user.getLastname(),user.getPhonenum(),user.getAuthtoken());
 		}else if(user.getAddress()!=null) {
@@ -161,12 +160,18 @@ public class UserDao {
 	}
 	
 	//check user for send email
-	public boolean checkUser(UserBeanAuth user) {
+	public String checkUser(UserBeanAuth user) {
 		List<UserBeanAuth> users = st.query("select * from usersa where authtoken = ?  ", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getAuthtoken()});
+		
 		if(users.size()==0 || users == null) {
-			return false;
+			return null;
 		}else {
-			return true;
+			List<UserBeanAuth> bean = st.query("select * from usersa where email = ?  ", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {user.getEmail()});
+			if(bean.size()==0 || bean == null) {
+				return null;
+			}else {
+				return bean.get(0).getAuthtoken();
+			}
 		}
 	}
 	

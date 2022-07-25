@@ -145,10 +145,11 @@ public class UserController {
 	@PutMapping("/updatecus")
 	public ResponceUserBeanAuth<?> updateUserCus(@RequestBody UserBeanAuth bean){
 		ResponceUserBeanAuth<UserBeanAuth> res=new ResponceUserBeanAuth<>();
-		System.out.println("in");
+		
 		UserBeanAuth user = userDao.findKey(bean);
 		if(user != null) {
 			UserBeanAuth userResp = userDao.updateUserCus(bean);
+			
 			if(userResp == null) {
 				res.setData(null);
 				res.setStatus(401);
@@ -266,8 +267,8 @@ public class UserController {
 	//sending mail and getting authenticated otp to check user otp
 	@PostMapping("/otpemail")
 	public String sendEmailForOTP(@RequestBody UserBeanAuth user) {
-		boolean check = userDao.checkUser(user);
-		if(check) {
+		String check = userDao.checkUser(user);
+		if(check!=null||check!="") {
 			Random rnd = new Random();
 			int number = rnd.nextInt(999999);
 			String otp = String.format("%06d", number);
@@ -275,8 +276,8 @@ public class UserController {
 				email_service.sendOtp(user.getEmail(), otp);
 				//encryption in otp
 				String str=bcypt.encode(otp);
-				System.out.println("match+--->"+bcypt.matches(otp, str));
-				return bcypt.encode(otp);//save as front end cookie
+				
+				return check+","+bcypt.encode(otp);//save as front end cookie
 			}catch(Exception e) {
 				e.printStackTrace();
 				return "-1";
