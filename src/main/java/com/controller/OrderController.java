@@ -33,6 +33,7 @@ public class OrderController {
 	public ResponceUserBeanAuth<?> addOrderAuth(@RequestBody OrderBean order,@RequestHeader("authtoken") String authtoken) {
 		ResponceUserBeanAuth<OrderBean> orders = new ResponceUserBeanAuth<OrderBean>();
 		boolean check = orderDao.userAuthentication( authtoken);
+		
 		if(check) {
 			boolean check_product = orderDao.addOrderAuth(order);
 			if(check_product) {
@@ -61,9 +62,9 @@ public class OrderController {
 	
 	//after get order using authentication
 	@GetMapping("/order")
-	public ResponceUserBeanAuth<?> getOrdersAuth( @RequestHeader("authToken") String authToken){
+	public ResponceUserBeanAuth<?> getOrdersAuth( @RequestHeader("authtoken") String authtoken){
 		ResponceUserBeanAuth<OrderBean> orders = new ResponceUserBeanAuth<OrderBean>();
-		OrderBean order = orderDao.getOrdersAuth( authToken);
+		OrderBean order = orderDao.getOrdersAuth( authtoken);
 		if(order == null) {
 			orders.setData(null);
 			orders.setMsg("Unauthorized");

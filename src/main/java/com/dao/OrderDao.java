@@ -128,8 +128,9 @@ public class OrderDao {
 			if(user.size() == 0 || user == null) {
 				return null;
 			}else {
-				return st.query("select * from orders where userid=?", 
-						new BeanPropertyRowMapper<OrderBean>(OrderBean.class), new Object[] { user.get(0).getUserid() }).get(0);
+				List<OrderBean> bean= st.query("select * from orders where userid=?", 
+						new BeanPropertyRowMapper<OrderBean>(OrderBean.class), new Object[] { user.get(0).getUserid() });
+				return bean.get(bean.size()-1);
 			}
 		}
 		
