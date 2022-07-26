@@ -8,8 +8,23 @@ public class OrderBean {
 	String payinfo;
 	String ordernote;
 	String billaddress;
+	String status;
+	String orderdate;
 	int billamount;
 	int billtax;
+	
+	public String getStatus() {
+		return status;
+	}
+	public void setStatus(String status) {
+		this.status = status;
+	}
+	public String getOrderdate() {
+		return orderdate;
+	}
+	public void setOrderdate(String orderdate) {
+		this.orderdate = orderdate;
+	}
 	public int getOrderid() {
 		return orderid;
 	}

@@ -20,6 +20,11 @@ public class OrderDao {
 	@Autowired
 	JdbcTemplate st;
 	
+	//write a customer which run every record query to update all authtoken in user table and change the status of 
+	//order (processing,shipped,confirmed) based on date -> (1 day for shipped and 2 day for delivered)
+	
+	
+	
 	// copy products detail to shift into order bean detail
 	//before -> order create
 		public boolean addOrder(OrderBean order) {
@@ -103,9 +108,9 @@ public class OrderDao {
 				//if required order unique then write logic here
 				//condition orders.size()>=1 => check every order contain this order or not 
 				if(billAmount>500) {
-					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax) values (?,?,?,?,?,?,?,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,0);
+					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax,status,orderdate) values (?,?,?,?,?,?,?,?,'Processing',CURRENT_DATE)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,0);
 				}else {
-					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax) values (?,?,?,?,?,?,?,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,50);
+					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax,status,orderdate) values (?,?,?,?,?,?,?,?,'Processing',CURRENT_DATE)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,50);
 				}
 				st.update("update usersa set cartdata = '' where userid = ?",order.getUserid());
 				return true;
@@ -134,6 +139,30 @@ public class OrderDao {
 			}
 		}
 		
+		//return all orders for particular user
+		public List<OrderBean> getAllOrders(String authtoken) {
+			List<UserBeanAuth> user = st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken});
+			if(user.size() == 0 || user == null) {
+				return null;
+			}else {
+				
+				List<OrderBean> bean= st.query("select * from orders where userid=?", 
+						new BeanPropertyRowMapper<OrderBean>(OrderBean.class), new Object[] { user.get(0).getUserid() });
+				
+				for(OrderBean x:bean) {
+					String orderData[] = x.getOrderdata().split(",");
+					StringBuilder sb = new StringBuilder();
+					for(String order : orderData) {
+						List<ProductBean> product = st.query("select productname,price from products where productid=?", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {Integer.parseInt(order)});
+						sb.append("{'productname':'"+product.get(0).getProductname()+"','price':'"+product.get(0).getPrice()+"'}").append(",");
+					}
+					x.setOrderdata(sb.toString());
+					
+				}
+				return bean;
+			}
+		}
 		
+		//SELECT date_part('month', timestamp '2022-07-22');current month,year,day
 		
 }

@@ -1,5 +1,7 @@
 package com.controller;
 
+import java.util.List;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -65,6 +67,23 @@ public class OrderController {
 	public ResponceUserBeanAuth<?> getOrdersAuth( @RequestHeader("authtoken") String authtoken){
 		ResponceUserBeanAuth<OrderBean> orders = new ResponceUserBeanAuth<OrderBean>();
 		OrderBean order = orderDao.getOrdersAuth( authtoken);
+		if(order == null) {
+			orders.setData(null);
+			orders.setMsg("Unauthorized");
+			orders.setStatus(401);
+		}else {
+			orders.setData(order);
+			orders.setMsg("Get All Products Successfully");
+			orders.setStatus(200);
+		}
+		return orders;
+	}
+	
+	//return all orders with detail for particular user
+	@GetMapping("allorders")
+	public ResponceUserBeanAuth<?> getAllOrders(@RequestHeader("authtoken") String authtoken){
+		ResponceUserBeanAuth<List<OrderBean>> orders=new ResponceUserBeanAuth<List<OrderBean>>();
+		List<OrderBean> order = orderDao.getAllOrders( authtoken);
 		if(order == null) {
 			orders.setData(null);
 			orders.setMsg("Unauthorized");
