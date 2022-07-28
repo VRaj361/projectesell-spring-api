@@ -12,7 +12,15 @@ public class OrderBean {
 	String orderdate;
 	int billamount;
 	int billtax;
+	int timeDay;
 	
+	
+	public int getTimeDay() {
+		return timeDay;
+	}
+	public void setTimeDay(int timeDay) {
+		this.timeDay = timeDay;
+	}
 	public String getStatus() {
 		return status;
 	}

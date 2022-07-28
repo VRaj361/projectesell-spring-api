@@ -1,9 +1,14 @@
 package com.dao;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.concurrent.TimeUnit;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
@@ -140,7 +145,7 @@ public class OrderDao {
 		}
 		
 		//return all orders for particular user
-		public List<OrderBean> getAllOrders(String authtoken) {
+		public List<OrderBean> getAllOrders(String authtoken)  {
 			List<UserBeanAuth> user = st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken});
 			if(user.size() == 0 || user == null) {
 				return null;
@@ -149,7 +154,31 @@ public class OrderDao {
 				List<OrderBean> bean= st.query("select * from orders where userid=?", 
 						new BeanPropertyRowMapper<OrderBean>(OrderBean.class), new Object[] { user.get(0).getUserid() });
 				
+				//convert string to date
+
 				for(OrderBean x:bean) {
+					if(x.getOrderdate()!=null) {
+						final SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+						 try {
+							Date date=sdf.parse(x.getOrderdate());
+							java.util.Date date1=new java.util.Date();
+							long dateBeforeInMs = date.getTime();
+							long dateAfterInMs = date1.getTime();
+							long timeDiff = Math.abs(dateAfterInMs - dateBeforeInMs);
+							long daysDiff = TimeUnit.DAYS.convert(timeDiff, TimeUnit.MILLISECONDS);
+							x.setTimeDay((int)daysDiff);
+							if((int)daysDiff==1) {
+								x.setStatus("Shipped");
+							}else if((int)daysDiff>=2) {
+								x.setStatus("Delivered");
+							}else {
+								x.setStatus("Processing");
+							}
+						} catch (ParseException e) {
+							e.printStackTrace();
+						}
+					}
+					
 					String orderData[] = x.getOrderdata().split(",");
 					StringBuilder sb = new StringBuilder();
 					for(String order : orderData) {
