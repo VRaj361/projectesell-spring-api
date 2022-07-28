@@ -64,9 +64,9 @@ public class OrderController {
 	
 	//after get order using authentication
 	@GetMapping("/order")
-	public ResponceUserBeanAuth<?> getOrdersAuth( @RequestHeader("authtoken") String authtoken){
+	public ResponceUserBeanAuth<?> getOrdersAuth( @RequestHeader("authtoken") String authtoken,@RequestHeader("orderid") int orderid){
 		ResponceUserBeanAuth<OrderBean> orders = new ResponceUserBeanAuth<OrderBean>();
-		OrderBean order = orderDao.getOrdersAuth( authtoken);
+		OrderBean order = orderDao.getOrdersAuth( authtoken,orderid);
 		if(order == null) {
 			orders.setData(null);
 			orders.setMsg("Unauthorized");

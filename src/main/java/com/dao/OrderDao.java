@@ -133,14 +133,24 @@ public class OrderDao {
 		}
 		
 		//after get order of particular user(authentication required)
-		public OrderBean getOrdersAuth(String authtoken) {
-			List<UserBeanAuth> user = st.query("select * from usersa where authtoken = ?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken});
+		public OrderBean getOrdersAuth(String authtoken,int orderid) {
+			List<UserBeanAuth> user = st.query("select * from usersa where authtoken = ? ", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken});
 			if(user.size() == 0 || user == null) {
 				return null;
 			}else {
-				List<OrderBean> bean= st.query("select * from orders where userid=?", 
-						new BeanPropertyRowMapper<OrderBean>(OrderBean.class), new Object[] { user.get(0).getUserid() });
-				return bean.get(bean.size()-1);
+				List<OrderBean> bean= st.query("select * from orders where userid=? and orderid=?", 
+						new BeanPropertyRowMapper<OrderBean>(OrderBean.class), new Object[] { user.get(0).getUserid(),orderid });
+				String orderData[] = bean.get(0).getOrderdata().split(",");
+				StringBuilder sb = new StringBuilder();
+				sb.append("[");
+				for(String order : orderData) {
+					List<ProductBean> product = st.query("select productname,price from products where productid=?", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {Integer.parseInt(order)});
+					sb.append("{\"productname\":\""+product.get(0).getProductname()+"\",\"price\":\""+product.get(0).getPrice()+"\"}").append(",");
+				}
+				sb.deleteCharAt(sb.length() - 1);
+				sb.append("]");
+				bean.get(0).setOrderdata(sb.toString());
+				return bean.get(0);
 			}
 		}
 		
@@ -166,7 +176,7 @@ public class OrderDao {
 							long dateAfterInMs = date1.getTime();
 							long timeDiff = Math.abs(dateAfterInMs - dateBeforeInMs);
 							long daysDiff = TimeUnit.DAYS.convert(timeDiff, TimeUnit.MILLISECONDS);
-							x.setTimeDay((int)daysDiff);
+//							x.setTimeDay((int)daysDiff);
 							if((int)daysDiff==1) {
 								x.setStatus("Shipped");
 							}else if((int)daysDiff>=2) {
@@ -178,13 +188,15 @@ public class OrderDao {
 							e.printStackTrace();
 						}
 					}
-					
+					//update query for order
+					st.update("update orders set status=? where orderid=?",x.getStatus(),x.getOrderid());
 					String orderData[] = x.getOrderdata().split(",");
 					StringBuilder sb = new StringBuilder();
 					for(String order : orderData) {
 						List<ProductBean> product = st.query("select productname,price from products where productid=?", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {Integer.parseInt(order)});
 						sb.append("{'productname':'"+product.get(0).getProductname()+"','price':'"+product.get(0).getPrice()+"'}").append(",");
 					}
+					sb.deleteCharAt(sb.length() - 1);
 					x.setOrderdata(sb.toString());
 					
 				}
