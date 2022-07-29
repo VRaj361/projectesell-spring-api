@@ -4,6 +4,7 @@ import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -94,6 +95,23 @@ public class OrderController {
 			orders.setStatus(200);
 		}
 		return orders;
+	}
+	
+	//cancel order
+	@DeleteMapping("/cancelorder")
+	public ResponceUserBeanAuth<?> cancelOrder(@RequestHeader("authtoken") String authtoken,@RequestHeader("orderid") int orderid){
+		ResponceUserBeanAuth<OrderBean> order = new ResponceUserBeanAuth<OrderBean>();
+		boolean is_check = orderDao.deleteOrder(authtoken,orderid);
+		if(is_check) {
+			order.setData(null);
+			order.setMsg("Order Delete Successfully");
+			order.setStatus(200);
+		}else {
+			order.setData(null);
+			order.setMsg("Something wents wrong");
+			order.setStatus(404);
+		}
+		return order;
 	}
 
 }

@@ -27,7 +27,7 @@ public class OrderDao {
 	
 	//write a customer which run every record query to update all authtoken in user table and change the status of 
 	//order (processing,shipped,confirmed) based on date -> (1 day for shipped and 2 day for delivered)
-	
+	//SELECT date_part('month', timestamp '2022-07-22');current month,year,day
 	
 	
 	// copy products detail to shift into order bean detail
@@ -204,6 +204,16 @@ public class OrderDao {
 			}
 		}
 		
-		//SELECT date_part('month', timestamp '2022-07-22');current month,year,day
+		//delete order
+		public boolean deleteOrder(String authtoken,int orderid) {
+			List<UserBeanAuth> user = st.query("select * from usersa where authtoken = ? ", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken});
+			if(user.size() == 0 || user == null) {
+				return false;
+			}else {
+				st.update("delete from orders where orderid=?",orderid);
+				return true;
+			}
+		}
+		
 		
 }
