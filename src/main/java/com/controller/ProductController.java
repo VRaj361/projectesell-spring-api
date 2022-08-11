@@ -181,7 +181,7 @@ public class ProductController {
 //		}
 //		System.out.println(arr.getClass().getSimpleName());
 		
-//		productDao.addProduct(product);
+		productDao.addProduct(product);
 //		System.out.println(product.getPhoto());
 		return product;
 	}

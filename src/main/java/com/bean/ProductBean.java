@@ -12,7 +12,7 @@ public class ProductBean {
 	int rating;
 	int productid;
 	
-//	MultipartFile photo;
+	String photo;
 
 	
 
@@ -24,12 +24,12 @@ public class ProductBean {
 		this.productid = productid;
 	}
 
-	// public MultipartFile getPhoto() {
-//		return photo;
-//	}
-//	public void setPhoto(MultipartFile photo) {
-//		this.photo = photo;
-//	}
+	 public String getPhoto() {
+		return photo;
+	}
+	public void setPhoto(String photo) {
+		this.photo = photo;
+	}
 	public int getRating() {
 		return rating;
 	}
