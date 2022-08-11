@@ -4,6 +4,7 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -15,6 +16,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.bean.FileDB;
 import com.bean.OrderBean;
 import com.bean.ProductBean;
 import com.bean.UserBean;
@@ -25,6 +27,8 @@ public class OrderDao {
 	@Autowired
 	JdbcTemplate st;
 	
+	@Autowired
+	private FileDBRepository fileDBRepository;
 	//write a customer which run every record query to update all authtoken in user table and change the status of 
 	//order (processing,shipped,confirmed) based on date -> (1 day for shipped and 2 day for delivered)
 	//SELECT date_part('month', timestamp '2022-07-22');current month,year,day
@@ -193,9 +197,19 @@ public class OrderDao {
 					String orderData[] = x.getOrderdata().split(",");
 					StringBuilder sb = new StringBuilder();
 					for(String order : orderData) {
-						List<ProductBean> product = st.query("select productname,price from products where productid=?", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {Integer.parseInt(order)});
-						sb.append("{'productname':'"+product.get(0).getProductname()+"','price':'"+product.get(0).getPrice()+"'}").append(",");
+						List<ProductBean> product = st.query("select productname,price,photo from products where productid=?", new BeanPropertyRowMapper<ProductBean>(ProductBean.class),new Object[] {Integer.parseInt(order)});
+						System.out.println("in");
+						if(product.get(0).getPhoto()!=null) {
+							System.out.println("this in");
+							FileDB file=fileDBRepository.findById(product.get(0).getPhoto()).get();
+							String str=Base64.getEncoder().encodeToString(file.getData());
+						    sb.append("{'productname':'"+product.get(0).getProductname()+"','photo':'"+str+"','price':'"+product.get(0).getPrice()+"'}").append(",");
+						}
+						else {
+							sb.append("{'productname':'"+product.get(0).getProductname()+"','photo':'"+""+"','price':'"+product.get(0).getPrice()+"'}").append(",");
+						}
 					}
+//					System.out.println("Stringbuilder-->"+sb.length());
 					sb.deleteCharAt(sb.length() - 1);
 					x.setOrderdata(sb.toString());
 					

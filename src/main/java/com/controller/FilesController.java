@@ -9,9 +9,11 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
@@ -19,6 +21,8 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bean.FileBean;
 import com.bean.FileDB;
+import com.bean.UserBean;
+import com.bean.UserBeanAuth;
 import com.dao.FileDBRepository;
 import com.google.api.client.http.InputStreamContent;
 
@@ -61,31 +65,30 @@ public class FilesController {
 	@Autowired
 	private FileDBRepository fileDBRepository;
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
-	public String uplpadFile(FileBean fileBean) throws IOException {
+	public String uplpadFile(FileBean fileBean,@RequestHeader("authtoken") String authtoken) throws IOException {
 //		String message = " ";
-		System.out.println(fileBean.getFile().getOriginalFilename());
-		System.out.println("bytes"+fileBean.getFile().getBytes());
-		System.out.println(fileBean.getFile().getInputStream());
+//		System.out.println(fileBean.getFile().getOriginalFilename());
+//		System.out.println("bytes"+fileBean.getFile().getBytes());
+//		System.out.println(fileBean.getFile().getInputStream());
 		
 		String fileName = StringUtils.cleanPath(fileBean.getFile().getOriginalFilename());
-	    FileDB FileDB = new FileDB(fileName, fileBean.getFile().getContentType(), fileBean.getFile().getBytes());
+		UserBeanAuth user=j.query("select * from usersa where authtoken=? ",new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken}).get(0); 
+	    FileDB FileDB = new FileDB(fileName, fileBean.getFile().getContentType(), fileBean.getFile().getBytes(),user.getUserid());
 	    fileDBRepository.save(FileDB);
 		
-	    FileDB file=fileDBRepository.findById("08cb09ae-aa8d-4bd9-824e-33df1376479c").get();//get the data
+//	    FileDB file=fileDBRepository.findBy("08cb09ae-aa8d-4bd9-824e-33df1376479c").get();//get the data
 		
 //	    for(int i=0;i<file.getData().length;i++) {	    	
 //	    	System.out.println(file.getData()[i]+" ");
 //	    }
-		
+		System.out.println("filedb--->"+FileDB.getId());
+		//store the value in database and return the id that it should be uploaded
 	     
 //		String str= Base64.getEncoder().encodeToString(file.getData());
-		return file.getId();
-		
-		
-		
-		
-		
-		
+//		System.out.println("String--->"+str);
+	    return FileDB.getId();
+//		return file.getId();
+
 		
 //		File f=new File("/media/vraj/New Volume/ComputerLanguages/Spring/project-esell-api/src/main/resources/static/Vraj.png");
 //		System.out.println("file-->"+f);

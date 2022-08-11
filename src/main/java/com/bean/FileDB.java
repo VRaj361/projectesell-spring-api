@@ -15,14 +15,23 @@ public class FileDB {
   private String id;
   private String name;
   private String type;
+  private int refuser;
   @Lob
   private byte[] data;
   public FileDB() {
   }
-  public FileDB(String name, String type, byte[] data) {
+  public FileDB(String name, String type, byte[] data,int refuser) {
     this.name = name;
     this.type = type;
     this.data = data;
+    this.refuser = refuser;
+  }
+  
+  public int getRefUser() {
+	return refuser;
+  }
+  public void setRefUser(int refuser) {
+	this.refuser = refuser;
   }
   public String getId() {
     return id;

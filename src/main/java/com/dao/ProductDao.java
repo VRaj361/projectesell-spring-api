@@ -2,6 +2,7 @@ package com.dao;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Base64;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -13,6 +14,8 @@ import org.springframework.jdbc.core.RowCallbackHandler;
 import org.springframework.stereotype.Repository;
 import org.yaml.snakeyaml.util.ArrayUtils;
 
+import com.bean.FileBean;
+import com.bean.FileDB;
 import com.bean.OrderBean;
 import com.bean.ProductBean;
 import com.bean.ResponceUserBeanAuth;
@@ -24,16 +27,43 @@ public class ProductDao {
 	@Autowired
 	JdbcTemplate st;
 
+	@Autowired
+	private FileDBRepository fileDBRepository;
+	
 	//return all product without verify
 	public List<ProductBean> getAllProducts() {
-		return st.query("select * from products", new BeanPropertyRowMapper<ProductBean>(ProductBean.class));
+		List<ProductBean> products= st.query("select * from products", new BeanPropertyRowMapper<ProductBean>(ProductBean.class));
+		List<ProductBean> allProducts=new ArrayList<ProductBean>();
+		for(ProductBean pro:products) {
+			if(pro.getPhoto()!=null) {
+//				List<FileDB> file=st.query("select * from files where id=?",new BeanPropertyRowMapper<FileDB>(FileDB.class),new Object[] {pro.getPhoto()});
+				FileDB file=fileDBRepository.findById(pro.getPhoto()).get();
+
+
+				pro.setPhoto(Base64.getEncoder().encodeToString(file.getData()));
+				allProducts.add(pro);
+			}
+		}	
+		return allProducts;
 	}
 
 	//return product without verify
 	public ProductBean getParticularProduct(long id) {
 		List<ProductBean> bean = st.query("select * from products where productid=? ",
 				new BeanPropertyRowMapper<ProductBean>(ProductBean.class), new Object[] { id });
-		return bean.get(0);
+//		return bean.get(0);
+		List<ProductBean> allProducts=new ArrayList<ProductBean>();
+		for(ProductBean pro:bean) {
+			if(pro.getPhoto()!=null) {
+//				List<FileDB> file=st.query("select * from files where id=?",new BeanPropertyRowMapper<FileDB>(FileDB.class),new Object[] {pro.getPhoto()});
+				FileDB file=fileDBRepository.findById(pro.getPhoto()).get();
+
+				System.out.println("fgbajl-->"+Base64.getEncoder().encodeToString(file.getData()));
+				pro.setPhoto(Base64.getEncoder().encodeToString(file.getData()));
+				allProducts.add(pro);
+			}
+		}	
+		return allProducts.get(0);
 	}
 	
 	//search the product for search box
@@ -106,6 +136,9 @@ public class ProductDao {
 					int x1 = Integer.parseInt(x);
 					List<ProductBean> bean = st.query("select * from products where productid=? ",
 							new BeanPropertyRowMapper<ProductBean>(ProductBean.class), new Object[] { x1 });
+					
+					
+
 					allProductsBeans.add(bean.get(0));
 				}
 				return allProductsBeans;
@@ -127,6 +160,13 @@ public class ProductDao {
 				int product_int = Integer.parseInt(product);
 				List<ProductBean> product_get = st.query("select * from products where productid=? ",
 						new BeanPropertyRowMapper<ProductBean>(ProductBean.class), new Object[] { product_int });
+				System.out.println("photo--->"+ product_get.get(0).getPhoto());
+				if(product_get.get(0).getPhoto()!=null) {
+					FileDB file=fileDBRepository.findById(product_get.get(0).getPhoto()).get();
+					product_get.get(0).setPhoto(Base64.getEncoder().encodeToString(file.getData()));
+				}
+				
+				
 				products.add(product_get.get(0));
 			}
 			return products;
@@ -214,10 +254,10 @@ public class ProductDao {
 	//add product
 	public void addProduct(ProductBean product) {
 		st.update(
-				"insert into products (productname,price,description,location,title,userid,rating,productid) values (?,?,?,?,?,?,?,?)",
-				product.getProductname(), product.getPrice(), product.getDescription(), product.getLocation(),
-				product.getTitle(), product.getUserid(), product.getRating(), product.getProductid());
-//		st.update("insert into products (productname,price,description,location,title,userid,rating,photo) values (?,?,?,?,?,?,?,?)",product.getProductname(),product.getPrice(),product.getDescription(),product.getLocation(),product.getTitle(),product.getUserid(),product.getRating(),product.getPhoto());
+				"insert into products (productname,price,description,title,userid,rating,photo) values (?,?,?,?,?,?,?)",
+				product.getProductname(), product.getPrice(), product.getDescription(), 
+				product.getTitle(), product.getUserid(), product.getRating(),product.getPhoto());
+
 	}// get request
 
 }
