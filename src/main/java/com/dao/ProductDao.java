@@ -54,11 +54,11 @@ public class ProductDao {
 //		return bean.get(0);
 		List<ProductBean> allProducts=new ArrayList<ProductBean>();
 		for(ProductBean pro:bean) {
+
 			if(pro.getPhoto()!=null) {
 //				List<FileDB> file=st.query("select * from files where id=?",new BeanPropertyRowMapper<FileDB>(FileDB.class),new Object[] {pro.getPhoto()});
 				FileDB file=fileDBRepository.findById(pro.getPhoto()).get();
 
-				System.out.println("fgbajl-->"+Base64.getEncoder().encodeToString(file.getData()));
 				pro.setPhoto(Base64.getEncoder().encodeToString(file.getData()));
 				allProducts.add(pro);
 			}
@@ -68,7 +68,18 @@ public class ProductDao {
 	
 	//search the product for search box
 	public List<ProductBean> getSearchProducts(String name){
-		return st.query("select * from products where productname like CONCAT( '%',?,'%') or title like CONCAT( '%',?,'%') or description like CONCAT( '%',?,'%')", new BeanPropertyRowMapper<ProductBean>(ProductBean.class), new Object[] { name,name,name });
+		List<ProductBean> bean= st.query("select * from products where productname like CONCAT( '%',?,'%') or title like CONCAT( '%',?,'%') or description like CONCAT( '%',?,'%')", new BeanPropertyRowMapper<ProductBean>(ProductBean.class), new Object[] { name,name,name });
+		List<ProductBean> allProducts=new ArrayList<ProductBean>();
+		for(ProductBean pro:bean) {
+//			
+			if(pro.getPhoto()!=null) {
+//				List<FileDB> file=st.query("select * from files where id=?",new BeanPropertyRowMapper<FileDB>(FileDB.class),new Object[] {pro.getPhoto()});
+				FileDB file=fileDBRepository.findById(pro.getPhoto()).get();	
+				pro.setPhoto(Base64.getEncoder().encodeToString(file.getData()));
+				allProducts.add(pro);
+			}
+		}	
+		return allProducts;
 	}
 	
 	//before
