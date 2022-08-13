@@ -29,6 +29,7 @@ import com.bean.UserBeanAuth;
 import com.dao.UserDao;
 import com.services.EmailService;
 import com.services.GenerateToken;
+import com.bean.*;
 
 @RestController
 @CrossOrigin
@@ -305,4 +306,28 @@ public class UserController {
 		}
 	}
 
+	//add review for logged in user
+	@PostMapping("/addreview")
+	public ResponceUserBeanAuth<?> addReviewParUser(@RequestBody ReviewBean review){
+		ResponceUserBeanAuth<ReviewBean> res = new ResponceUserBeanAuth<>();
+		ReviewBean rev = userDao.postAddReview(review);
+		if(rev != null) {
+			res.setData(rev);
+			res.setStatus(200);
+			res.setMsg("Add Review Successfully");
+		}else {
+			res.setData(null);
+			res.setStatus(401);
+			res.setMsg("Unauthorized");
+		}
+		return res; 
+			
+	}
+	//get all revies
+	@GetMapping("/getreviews")
+	public List<ReviewBean> getreviews(){
+		return userDao.getreviews();
+	}
+	
+	
 }

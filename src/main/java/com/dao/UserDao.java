@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.bean.UserBean;
 import com.bean.UserBeanAuth;
+import com.bean.ReviewBean;
 import com.google.api.services.drive.model.User;
 
 @Repository
@@ -173,6 +174,22 @@ public class UserDao {
 				return bean.get(0).getAuthtoken();
 			}
 		}
+	}
+	
+	//add review
+	public ReviewBean postAddReview(ReviewBean bean) {
+		List<UserBeanAuth> user=st.query("select * from usersa where authtoken = ?",new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {bean.getAuthtoken()});
+		if(user.size()==0 || user == null) {
+			return null;
+		}else {
+			st.update("insert into reviews (name,title,description,keywords,date,userid) values (?,?,?,?,?,?)",bean.getName(),bean.getTitle(),bean.getDescription(),bean.getKeywords(),bean.getDate(),user.get(0).getUserid());
+		}
+		bean.setUserid(user.get(0).getUserid());
+		return bean;
+	}
+	
+	public List<ReviewBean> getreviews(){
+		return st.query("select * from reviews",new BeanPropertyRowMapper<ReviewBean>(ReviewBean.class));
 	}
 	
 }
