@@ -13,8 +13,15 @@ public class OrderBean {
 	int billamount;
 	int billtax;
 	int timeDay;
+	int discount;
 	
 	
+	public int getDiscount() {
+		return discount;
+	}
+	public void setDiscount(int discount) {
+		this.discount = discount;
+	}
 	public int getTimeDay() {
 		return timeDay;
 	}

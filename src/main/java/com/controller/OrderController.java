@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.bean.CouponBean;
 import com.bean.OrderBean;
 import com.bean.ResponceUserBeanAuth;
 import com.dao.OrderDao;
@@ -110,6 +111,25 @@ public class OrderController {
 			order.setData(null);
 			order.setMsg("Something wents wrong");
 			order.setStatus(404);
+		}
+		return order;
+	}
+	
+	//check coupon if there exists then decrement the count coupon 
+	@PostMapping("/checkcoupen")
+	//@RequestHeader(value="authtoken", required=false) String authtoken,@RequestHeader(value="coupon", required=false) String coupon 
+	public ResponceUserBeanAuth<?> checkCoupon(@RequestBody CouponBean coupon){
+		System.out.println(coupon.getAuthtoken());
+		ResponceUserBeanAuth<CouponBean> order = new ResponceUserBeanAuth<CouponBean>();
+		CouponBean str=orderDao.checkCoupon(coupon.getAuthtoken(),coupon.getCouponname());
+		if(str==null) {
+			order.setMsg("Invalid User");
+			order.setData(null);
+			order.setStatus(400);
+		}else {
+			order.setData(str);
+			order.setMsg("Rs. "+str.getDiscount()+" Discount Coupon Applied");
+			order.setStatus(200);
 		}
 		return order;
 	}

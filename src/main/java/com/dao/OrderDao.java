@@ -16,6 +16,7 @@ import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.bean.CouponBean;
 import com.bean.FileDB;
 import com.bean.OrderBean;
 import com.bean.ProductBean;
@@ -102,7 +103,6 @@ public class OrderDao {
 					new BeanPropertyRowMapper<UserBean>(UserBean.class), new Object[] { order.getUserid() });
 			String data = cartData.get(0).getCartdata();
 			if (data != null) {
-				
 				order.setOrderdata(data);
 				String products[] = data.split(",");
 				//calculate the bill amount
@@ -117,9 +117,13 @@ public class OrderDao {
 				//if required order unique then write logic here
 				//condition orders.size()>=1 => check every order contain this order or not 
 				if(billAmount>500) {
-					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax,status,orderdate) values (?,?,?,?,?,?,?,?,'Processing',CURRENT_DATE)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,0);
+					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax,status,orderdate,discount) values (?,?,?,?,?,?,?,?,'Processing',CURRENT_DATE,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount-order.getDiscount(),0,order.getDiscount());
 				}else {
-					st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax,status,orderdate) values (?,?,?,?,?,?,?,?,'Processing',CURRENT_DATE)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount,50);
+					if(billAmount-order.getDiscount()<0) {
+						st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax,status,orderdate,discount) values (?,?,?,?,?,?,?,?,'Processing',CURRENT_DATE,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),0,50,order.getDiscount());
+					}else {						
+						st.update("insert into orders (userid,orderdata,billname,ordernote,payinfo,billaddress,billamount,billtax,status,orderdate,discount) values (?,?,?,?,?,?,?,?,'Processing',CURRENT_DATE,?)",order.getUserid(),order.getOrderdata(),order.getBillname(),order.getOrdernote(),order.getPayinfo(),order.getBilladdress(),billAmount-order.getDiscount(),50,order.getDiscount());
+					}
 				}
 				st.update("update usersa set cartdata = '' where userid = ?",order.getUserid());
 				return true;
@@ -226,6 +230,22 @@ public class OrderDao {
 			}else {
 				st.update("delete from orders where orderid=?",orderid);
 				return true;
+			}
+		}
+		
+		//check coupon and changes in order table
+		public CouponBean checkCoupon(String authtoken,String coupon) {
+			List<UserBeanAuth> user = st.query("select * from usersa where authtoken=?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken});
+			if(user.size()==0||user==null) {
+				return null;
+			}else {
+				List<CouponBean> c=st.query("select * from coupons where couponname=? ", new BeanPropertyRowMapper<CouponBean>(CouponBean.class),new Object[] {coupon});
+				if(c.size()==0) {
+					return null;
+				}
+				st.update("update coupons set qty = ?  where couponname=?",c.get(0).getQty()-1,coupon);
+//				return "Rs. "+c.get(0).getDiscount()+" discount coupon Applied";
+				return c.get(0);
 			}
 		}
 		
