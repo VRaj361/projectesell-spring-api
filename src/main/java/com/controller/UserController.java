@@ -22,10 +22,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.bean.ResponceUserBean;
-import com.bean.ResponceUserBeanAuth;
-import com.bean.UserBean;
-import com.bean.UserBeanAuth;
 import com.dao.UserDao;
 import com.services.EmailService;
 import com.services.GenerateToken;
@@ -330,4 +326,11 @@ public class UserController {
 	}
 	
 	
+	
+	//Add Auction user
+	@PostMapping("/addauction")
+	public AuctionBean addAuction(@RequestBody AuctionBean auction) {
+		userDao.addAuction(auction);
+		return auction;
+	}
 }

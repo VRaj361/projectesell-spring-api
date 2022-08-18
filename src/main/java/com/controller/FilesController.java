@@ -21,8 +21,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import com.bean.FileBean;
 import com.bean.FileDB;
+import com.bean.FileDBA;
 import com.bean.UserBean;
 import com.bean.UserBeanAuth;
+import com.dao.FileDBARepository;
 import com.dao.FileDBRepository;
 import com.google.api.client.http.InputStreamContent;
 
@@ -64,6 +66,9 @@ public class FilesController {
 	JdbcTemplate j;
 	@Autowired
 	private FileDBRepository fileDBRepository;
+	
+	@Autowired
+	private FileDBARepository fileDBRARepository;
 	@RequestMapping(value = "/upload", method = RequestMethod.POST)
 	public String uplpadFile(FileBean fileBean,@RequestHeader("authtoken") String authtoken) throws IOException {
 //		String message = " ";
@@ -147,4 +152,15 @@ public class FilesController {
 //		}
 		
 	}
+	
+	@RequestMapping(value = "/uploadimage", method = RequestMethod.POST)
+	public String uplpadFileAuction(FileBean fileBean,@RequestHeader("authtoken") String authtoken) throws IOException {
+		System.out.println("in");
+		String fileName = StringUtils.cleanPath(fileBean.getFile().getOriginalFilename());
+		UserBeanAuth user=j.query("select * from usersa where authtoken=? ",new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {authtoken}).get(0); 
+	    FileDBA Filedb = new FileDBA(fileName, fileBean.getFile().getContentType(), fileBean.getFile().getBytes(),user.getUserid());
+	    fileDBRARepository.save(Filedb);
+	    return Filedb.getId();
+	}
+	
 }

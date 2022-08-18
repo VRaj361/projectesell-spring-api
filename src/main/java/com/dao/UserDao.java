@@ -10,6 +10,7 @@ import org.springframework.stereotype.Repository;
 
 import com.bean.UserBean;
 import com.bean.UserBeanAuth;
+import com.bean.AuctionBean;
 import com.bean.ReviewBean;
 import com.google.api.services.drive.model.User;
 
@@ -190,6 +191,11 @@ public class UserDao {
 	
 	public List<ReviewBean> getreviews(){
 		return st.query("select * from reviews",new BeanPropertyRowMapper<ReviewBean>(ReviewBean.class));
+	}
+	
+	// add auction
+	public void addAuction(AuctionBean auction) {
+		st.update("insert into auctions (username,bid,rangelowbid,rangehighbid,productname,category,description,ageproduct,time,photo) values (?,?,?,?,?,?,?,?,?,?)",auction.getUsername(),auction.getBid(),auction.getRangelowbid(),auction.getRangehighbid(),auction.getProductname(),auction.getCategory(),auction.getDescription(),auction.getAgeproduct(),auction.getTime(),auction.getPhoto());
 	}
 	
 }
