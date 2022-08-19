@@ -1,5 +1,7 @@
 package com.dao;
 
+import java.util.ArrayList;
+import java.util.Base64;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,9 @@ import org.springframework.stereotype.Repository;
 import com.bean.UserBean;
 import com.bean.UserBeanAuth;
 import com.bean.AuctionBean;
+import com.bean.FileDB;
+import com.bean.FileDBA;
+import com.bean.ProductBean;
 import com.bean.ReviewBean;
 import com.google.api.services.drive.model.User;
 
@@ -22,6 +27,9 @@ public class UserDao {
 	
 	@Autowired
 	BCryptPasswordEncoder bcypt;
+	
+	@Autowired
+	private FileDBARepository fileDBARepository;
 	
 	public void addUser(UserBean user) {
 		st.update("insert into users (firstname,lastname,createdate,gender,email,password,phonenum,roleid,address) values (?,?,?,?,?,?,?,2,'')",user.getFirstname(),user.getLastname(),user.getCreatedate(),user.getGender(),user.getEmail(),user.getPassword(),user.getPhonenum());		
@@ -198,4 +206,21 @@ public class UserDao {
 		st.update("insert into auctions (username,bid,rangelowbid,rangehighbid,productname,category,description,ageproduct,time,photo) values (?,?,?,?,?,?,?,?,?,?)",auction.getUsername(),auction.getBid(),auction.getRangelowbid(),auction.getRangehighbid(),auction.getProductname(),auction.getCategory(),auction.getDescription(),auction.getAgeproduct(),auction.getTime(),auction.getPhoto());
 	}
 	
+	//get all product
+	public List<AuctionBean> getAuction(){
+		List<AuctionBean> auctionProduct= st.query("select username,bid,highbid,rangelowbid,rangehighbid,productname,category,description,ageproduct,time,photo from auctions",new BeanPropertyRowMapper<AuctionBean>(AuctionBean.class));
+		
+		List<AuctionBean> allProducts=new ArrayList<AuctionBean>();
+		for(AuctionBean pro:auctionProduct) {
+			if(pro.getPhoto()!=null) {
+//				List<FileDB> file=st.query("select * from files where id=?",new BeanPropertyRowMapper<FileDB>(FileDB.class),new Object[] {pro.getPhoto()});
+				FileDBA file=fileDBARepository.findById(pro.getPhoto()).get();
+
+
+				pro.setPhoto(Base64.getEncoder().encodeToString(file.getData()));
+				allProducts.add(pro);
+			}
+		}	
+		return allProducts;
+	}
 }

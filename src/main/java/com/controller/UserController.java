@@ -333,4 +333,10 @@ public class UserController {
 		userDao.addAuction(auction);
 		return auction;
 	}
+	
+	//Get All Auction product
+	@GetMapping("/getauction")
+	public List<AuctionBean> getAuction(){
+		return userDao.getAuction();
+	}
 }
