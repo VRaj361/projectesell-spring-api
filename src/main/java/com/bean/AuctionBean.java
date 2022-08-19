@@ -12,7 +12,21 @@ public class AuctionBean {
 	int ageproduct;
 	String time;
 	String photo;
+	String biduser;
+	int userid;
 	
+	public int getUserid() {
+		return userid;
+	}
+	public void setUserid(int userid) {
+		this.userid = userid;
+	}
+	public String getBiduser() {
+		return biduser;
+	}
+	public void setBiduser(String biduser) {
+		this.biduser = biduser;
+	}
 	public String getPhoto() {
 		return photo;
 	}

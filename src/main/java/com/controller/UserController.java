@@ -16,10 +16,13 @@ import org.springframework.security.crypto.bcrypt.BCrypt;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.dao.UserDao;
@@ -339,4 +342,29 @@ public class UserController {
 	public List<AuctionBean> getAuction(){
 		return userDao.getAuction();
 	}
+	
+	//specifix product auction
+	@RequestMapping(value="getparticularaucpro/{id}",method = RequestMethod.GET)
+	public AuctionBean getParAucPro(@PathVariable long id) {
+		return userDao.getParAucProduct(id);
+	}
+	
+	//update data
+	@PutMapping("/updatebiduser")
+	public void getupdateBiduser(@RequestBody AuctionBean ac) {
+		userDao.updateBidUser(ac);
+	}
+	
+	//get particular auction id
+	@RequestMapping(value="getUserAuction/{id}",method = RequestMethod.GET)
+	public List<UserBeanAuth> getUserAuction(@PathVariable long id) {
+		return userDao.getUserAuction(id);
+	}
+	
+	//add highbid
+	@PutMapping("/setHighBid")
+	public void setHighBid(@RequestBody UserBeanAuth user) {
+		userDao.setHighBit(user.getUserid(),Integer.parseInt(user.getProductid()));
+	}
+	
 }

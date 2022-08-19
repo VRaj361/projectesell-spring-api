@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
 
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -203,12 +205,12 @@ public class UserDao {
 	
 	// add auction
 	public void addAuction(AuctionBean auction) {
-		st.update("insert into auctions (username,bid,rangelowbid,rangehighbid,productname,category,description,ageproduct,time,photo) values (?,?,?,?,?,?,?,?,?,?)",auction.getUsername(),auction.getBid(),auction.getRangelowbid(),auction.getRangehighbid(),auction.getProductname(),auction.getCategory(),auction.getDescription(),auction.getAgeproduct(),auction.getTime(),auction.getPhoto());
+		st.update("insert into auctions (username,bid,rangelowbid,rangehighbid,productname,category,description,ageproduct,time,photo,userid) values (?,?,?,?,?,?,?,?,?,?,?)",auction.getUsername(),auction.getBid(),auction.getRangelowbid(),auction.getRangehighbid(),auction.getProductname(),auction.getCategory(),auction.getDescription(),auction.getAgeproduct(),auction.getTime(),auction.getPhoto(),auction.getUserid());
 	}
 	
 	//get all product
 	public List<AuctionBean> getAuction(){
-		List<AuctionBean> auctionProduct= st.query("select username,bid,highbid,rangelowbid,rangehighbid,productname,category,description,ageproduct,time,photo from auctions",new BeanPropertyRowMapper<AuctionBean>(AuctionBean.class));
+		List<AuctionBean> auctionProduct= st.query("select userid,auctionid,username,bid,highbid,rangelowbid,rangehighbid,productname,category,description,ageproduct,time,photo,userid from auctions",new BeanPropertyRowMapper<AuctionBean>(AuctionBean.class));
 		
 		List<AuctionBean> allProducts=new ArrayList<AuctionBean>();
 		for(AuctionBean pro:auctionProduct) {
@@ -222,5 +224,53 @@ public class UserDao {
 			}
 		}	
 		return allProducts;
+	}
+	
+	//get particular product
+	public AuctionBean getParAucProduct(long auctionid) {
+		AuctionBean bean= st.query("select userid,auctionid,username,bid,highbid,rangelowbid,rangehighbid,productname,category,description,ageproduct,time,photo,biduser from auctions where auctionid=?",new BeanPropertyRowMapper<AuctionBean>(AuctionBean.class),new Object[] {auctionid}).get(0);
+		
+			if(bean.getPhoto()!=null) {
+//				List<FileDB> file=st.query("select * from files where id=?",new BeanPropertyRowMapper<FileDB>(FileDB.class),new Object[] {pro.getPhoto()});
+				FileDBA file=fileDBARepository.findById(bean.getPhoto()).get();
+
+
+				bean.setPhoto(Base64.getEncoder().encodeToString(file.getData()));
+				
+			}
+		return bean ;
+	}
+	
+	//change the user
+	public void updateBidUser(AuctionBean auction) {
+//		AuctionBean ac=st.query("select * from auctions where auctionid=?",new BeanPropertyRowMapper<AuctionBean>(AuctionBean.class),new Object[] {auction.getAuctionid()}).get(0);
+		st.update("update  auctions set biduser=? where auctionid=? ",auction.getBiduser(),auction.getAuctionid());
+	}
+	
+	//get Product using userid
+	public List<UserBeanAuth> getUserAuction(long userid){
+		List<AuctionBean> au = st.query("select * from auctions where userid=?",new BeanPropertyRowMapper<AuctionBean>(AuctionBean.class),new Object[] {userid} );
+		List<UserBeanAuth> users=new ArrayList<UserBeanAuth>();
+		for(AuctionBean a:au) {
+			if(a.getBiduser()!=null) {
+				JSONArray j=new JSONArray(a.getBiduser());
+				for(int i=0;i<j.length();i++) {
+					JSONObject obj = new JSONObject(j.get(i).toString());
+//					System.out.println(obj.getString("bid")+" "+obj.get("userid"));
+					UserBeanAuth user=st.query("select * from usersa where userid=?", new BeanPropertyRowMapper<UserBeanAuth>(UserBeanAuth.class),new Object[] {obj.get("userid")}).get(0);
+					user.setCartdata(obj.getString("bid"));
+					user.setProductid(Integer.toString(a.getAuctionid()));
+					users.add(user);
+				}
+				
+				
+			}
+		}
+		return users;
+	}
+	
+	//setHighBit
+	public void setHighBit(int userid,int auctionid) {
+		st.update("update auctions set highbid=? where auctionid=?",userid,auctionid);
 	}
 }
