@@ -243,7 +243,12 @@ public class OrderDao {
 				if(c.size()==0) {
 					return null;
 				}
-				st.update("update coupons set qty = ?  where couponname=?",c.get(0).getQty()-1,coupon);
+				
+				if(c.get(0).getQty()==0) {
+					return null;
+				}else {
+					st.update("update coupons set qty = ?  where couponname=?",c.get(0).getQty()-1,coupon);
+				}
 //				return "Rs. "+c.get(0).getDiscount()+" discount coupon Applied";
 				return c.get(0);
 			}
